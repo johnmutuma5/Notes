@@ -23,3 +23,24 @@ This will create a project folder named `projectname` as above. It will also con
 This is for routing and setting up the routes and urls.
 
 It contains a `urlpatterns` `array` that uses `regex` to define url patterns.
+
+
+### Inside wsgi.py
+`wsgi` is the standard for Python web applications.
+
+This file creates the Django application and exports the settings in settings.py to the `environment`.
+
+### Running the application
+The application is triggered using `manage.py` with the option `runserver`.
+
+You may get a notification in the commandline for unapplied migrations.
+
+### Migrations
+This keeps tracks of changes within code that may require database schema changes to be applied to the tables and by executing `manage.py` with the option `migrate`, we're able to apply the changes to the database. Ensure that the correct database configuration is made in `settings.py`.
+
+### The admin page
+Django creates an admin route by default and can be accessed using `/admin`. Here you'll be prompted to login. But first, you have to create at least one admin account using `createsuperuser` option on `manage.py`.
+
+run `./manage.py createsuperuser --username=<username> --email=<email>`.
+
+Then use the credentials to login at `localhost:8000/admin`
