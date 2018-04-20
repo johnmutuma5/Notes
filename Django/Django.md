@@ -35,7 +35,29 @@ The application is triggered using `manage.py` with the option `runserver`.
 
 You may get a notification in the commandline for unapplied migrations.
 
-### Migrations
+### Setting up the database
+Inside `settings.py`, find the `DATABASES` setting and change it to fit your specifications.
+
+e.g.
+
+```Python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'djangotest',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': ''
+    }
+}
+```
+Engine options include `mysql`, `oracle`, `postgresql`, `sqlite3`.
+
+`NAME` refers to the databse name.
+
+
+#### Migrations
 This keeps tracks of changes within code that may require database schema changes to be applied to the tables and by executing `manage.py` with the option `migrate`, we're able to apply the changes to the database. Ensure that the correct database configuration is made in `settings.py`.
 
 ### The admin page
