@@ -17,3 +17,9 @@ This will create a project folder named `projectname` as above. It will also con
 | `INSTALLED APPS`    | Array    | An array of apps created in the project. This defaults to an array containing some apps which include `admin`, `auth`, `sessions` etc.                |
 | `MIDDLEWARE`        | Array    | An array of `wsgi` MIDDLEWARE                         |
 | `DATABASES`         | Dict     | Databases set up for the Application                  |
+
+
+### Inside urls.py
+This is for routing and setting up the routes and urls.
+
+It contains a `urlpatterns` `array` that uses `regex` to define url patterns.
