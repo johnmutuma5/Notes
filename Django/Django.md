@@ -1,7 +1,7 @@
 # Django Framework
 
 - Open a project and make a virtual enviroment inside.
-- Install Django *`pip install django`
+- Install Django *`pip install django`*
 
 ## Starting the project
 Run:
@@ -68,10 +68,10 @@ Django creates an admin route by default and can be accessed using *`/admin`*. H
 
 >*`./manage.py createsuperuser --username=<username> --email=<email>`*
 
-Then use the credentials to login at *`localhost:8000/admin`
+Then use the credentials to login at *`localhost:8000/admin`*
 
 
-## Django *`Apps`
+## Django *`Apps`*
 Django works with the concept of *`apps`*. *`apps`*  organize related endpoints together. For instance, in a blogs related project, an *`app`*  could be a package organizing all *`posts`*  related endpoints.
 
 ### Our first an app
@@ -87,7 +87,7 @@ This creates a package named "posts" with necessary files and directories popula
 Once an app is created, we ought to include it as an *`array`*  member in the *`INSTALLED_APPS`*  setting inside of *`settings.py`*. This is very important.
 
 
-#### Registering the *`app`'s URLs
+#### Registering the *`app`*'s URLs
 The next thing to do is to include the *`app`*  as part of the URLs in *`/path/to/projectname/urls.py`*. To do this, we need to have the *`app`*  "posts" in the *`urlpatterns`*  *`array`*. The following *`code`*  snippet illustrates this;
 
 ```Python
@@ -112,3 +112,35 @@ But you can achieve this whichever way!
 Inside the the *`urls.py`*  file created, we want to register the endpoints related to or that extend *`/posts/`*.
 
 We will need to create a *`urlpatterns`*  *`array`*  for this file. This is what will be shipped to *`include('posts.urls')`*  in the base *`urls.py`*  module.
+
+In these notes, we'll be writing versions of both.
+
+The arguments of these functions besides the patterns, are:
+- The endpoint handler - usually imported from *`views.py`* module in the app
+- The name of the endpoint - this can be used to refer to the endpoint by name in the code
+
+The following code snippet illustrates creating *`urlpatterns`* for 'posts' *`app`*
+
+Using *`re_path`*:
+```Py
+from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(r'^$', views.index, name='posts_index')
+]
+
+```
+
+Using *`path`*:
+```Py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(r'', views.index, name='posts_index')
+]
+
+```
+
+We will, thereafter, need to define a function *`index`* inside *`views.py`* to be used as the endpoint handler as in the code snippets above.
