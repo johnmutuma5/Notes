@@ -44,6 +44,8 @@ Inside *`settings.py`*, find the *`DATABASES`*  setting and change it to fit you
 e.g.
 
 ```Python
+# projectname/settings.py
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -91,6 +93,8 @@ Once an app is created, we ought to include it as an *`array`*  member in the *`
 The next thing to do is to include the *`app`*  as part of the URLs in *`/path/to/projectname/urls.py`*. To do this, we need to have the *`app`*  "posts" in the *`urlpatterns`*  *`array`*. The following *`code`*  snippet illustrates this;
 
 ```Python
+# urls.py
+
 from django.urls import path, include
 
 urlpatterns = [
@@ -123,6 +127,8 @@ The following code snippet illustrates creating *`urlpatterns`* for 'posts' *`ap
 
 Using *`re_path`*:
 ```Py
+# posts/urls.py
+
 from django.urls import re_path
 from . import views
 
@@ -134,6 +140,8 @@ urlpatterns = [
 
 Using *`path`*:
 ```Py
+# posts/urls.py
+
 from django.urls import path
 from . import views
 
@@ -153,7 +161,7 @@ They will also need to return a *`response`*. A *`response`* in Django can be cr
 The following code snippet demonstrates how to make the index handler that returns a *`json`* response for our 'posts' *`app`*:
 
 ```Py
-from django.shortcuts import render
+# posts/views.py
 from django.http import HttpResponse
 import json
 
