@@ -72,7 +72,7 @@ Then use the credentials to login at `localhost:8000/admin`
 
 
 ## Django `Apps`
-Django works with the concept of `apps`. `apps` organize related endpoints together. For instance, in a blogs related project, an `app` could be a module organizing all `posts` related endpoints.
+Django works with the concept of `apps`. `apps` organize related endpoints together. For instance, in a blogs related project, an `app` could be a package organizing all `posts` related endpoints.
 
 ### Our first an app
 We will create an `app` called "posts" in our project.
@@ -81,4 +81,26 @@ To create an `app`, we run `manage.py` with the `startapp` option in the termina
 
 >`./manage.py startapp posts`.
 
-This creates a package named "posts" with necessary files and directories populated. Among these include `/migrations`, `apps.py`, `models.py`, `tests.py` and `views.py`.
+This creates a package named "posts" with necessary files and directories populated. Among these include `/migrations`, `admin.py`, `apps.py`, `models.py`, `tests.py` and `views.py`.
+
+#### Registering the `app` in settings.py
+Once an app is created, we ought to include it as an `array` member in the `INSTALLED_APPS` setting inside of `settings.py`. This is very important.
+
+
+#### Registering the `app`'s URLs
+The next thing to do is to include the `app` as part of the URLs in `/path/to/projectname/urls.py`. To do this, we need to have the `app` "posts" in the `urlpatterns` `array`. The following `code` snippet illustrates this;
+
+```Python
+from django.urls import path, include
+
+urlpatterns = [
+  path(r'^posts/', include('posts.urls'))
+]
+```
+The `include` method called above with `posts.urls` is going to expect the module `urls.py` to be present in the `posts` package. At this point, we do not have this module and we will create in the next section.
+
+##### URLs in the `app`
+Inside of `app` 'posts', we need to create a new file called `urls.py`. I like the command line, so quickly, in the project root directory, run:
+>touch ./posts/urls.py
+
+But you can achieve this whichever way!
