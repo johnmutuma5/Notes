@@ -5,7 +5,7 @@
 
 ## Starting the project
 Run:
->`django-admin startproject <projectname>`
+>*`django-admin startproject <projectname>`*
 
 in the commandline inside the project folder
 This will create a project folder named `projectname` as above. It will also contain a settings.py file with project settings.
@@ -66,7 +66,7 @@ This keeps track of changes within code affecting models that may require databa
 ### The admin page
 Django creates an admin route by default and can be accessed using `/admin`. Here you'll be prompted to login. But first, you have to create at least one admin account using `createsuperuser` option on `manage.py`.
 
->`./manage.py createsuperuser --username=<username> --email=<email>`.
+>*`./manage.py createsuperuser --username=<username> --email=<email>`*
 
 Then use the credentials to login at `localhost:8000/admin`
 
@@ -79,7 +79,7 @@ We will create an `app` called "posts" in our project.
 
 To create an `app`, we run `manage.py` with the `startapp` option in the terminal. i.e.
 
->`./manage.py startapp posts`.
+>*`./manage.py startapp posts`*
 
 This creates a package named "posts" with necessary files and directories populated. Among these include `/migrations`, `admin.py`, `apps.py`, `models.py`, `tests.py` and `views.py`.
 
@@ -94,13 +94,21 @@ The next thing to do is to include the `app` as part of the URLs in `/path/to/pr
 from django.urls import path, include
 
 urlpatterns = [
-  path(r'^posts/', include('posts.urls'))
+  path(r'posts/', include('posts.urls'))
 ]
 ```
 The `include` method called above with `posts.urls` is going to expect the module `urls.py` to be present in the `posts` package. At this point, we do not have this module and we will create in the next section.
 
-##### URLs in the `app`
+Besides the `path` function, URL patterns can also be created using the `url` or the `re_path` functions also imported from `django.urls`. The difference between these is that `path` takes url templates e.g. `r'posts/<id>/'`, whereas `re_path` and `url` take `regex` patterns e.g. `r'^posts/(?P<id>\d+)$/'`.
+
+According to [this](https://docs.djangoproject.com/en/2.0/ref/urls/#url), `url` is alias to `re_path` and is bound for deprecation, and is best avoided.
+
+##### URLs in the `app` 'posts'
 Inside of `app` 'posts', we need to create a new file called `urls.py`. I like the command line, so quickly, in the project root directory, run:
->touch ./posts/urls.py
+>*`touch ./posts/urls.py`*
 
 But you can achieve this whichever way!
+
+Inside the the `urls.py` file created, we want to register the endpoints related to or that extend `/posts/`.
+
+We will need to create a `urlpatterns` `array` for this file. This is what will be shipped to `include('posts.urls')` in the base `urls.py` module.
