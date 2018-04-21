@@ -144,3 +144,23 @@ urlpatterns = [
 ```
 
 We will, thereafter, need to define a function *`index`* inside *`views.py`* to be used as the endpoint handler as in the code snippets above.
+
+##### Endpoint handlers
+All the endpoint handlers will be *`callables`* that take *`request`* as the first arguments.
+
+They will also need to return a *`response`*. A *`response`* in Django can be created using *`render`* method from *`django.shortcuts`* or *`HttpResponse`* from *`django.http`*.
+
+The following code snippet demonstrates how to make the index handler that returns a *`json`* response for our 'posts' *`app`*:
+
+```Py
+from django.shortcuts import render
+from django.http import HttpResponse
+import json
+
+# Create your views here.
+def index(request):
+    msg = json.dumps({"msg": "Hello"})
+    response = HttpResponse(msg)
+    response['content-type'] = 'applciation/json'
+    return response
+```
