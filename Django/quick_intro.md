@@ -1,4 +1,6 @@
-# Django Framework
+# PYTHON DJANGO WEB FRAMEWORK
+
+_**NB**: In these notes, the command line commands are applicable to UNIX-based operating systems._
 
 - Open a project and make a virtual enviroment inside.
 - Install Django *`pip install django`*
@@ -15,12 +17,12 @@ This will create a project folder named *`projectname`*  as above. It will also 
 
 | Setting             |Type      | Description                                           |
 |:-------------------:|:--------:|:------------------------------------------------------|
-| *`DEBUG`*              |Boolean   | This setting is important for development and testing. This Should not be turned on in production|
-| *`ALLOWED_HOSTS`*      | Array    | An array of domain names allowed for the applciation  |
-| *`INSTALLED APPS`*     | Array    | An array of apps created in the project. This defaults to an array containing some apps which include *`admin`*, *`auth`*, *`sessions`*  etc.                |
-| *`MIDDLEWARE`*         | Array    | An array of *`wsgi`*  MIDDLEWARE                         |
-| *`DATABASES`*          | Dict     | Databases set up for the Application                  |
-
+| *`DEBUG`*           |Boolean   | This setting is important for development and testing. This Should not be turned on in production|
+| *`ALLOWED_HOSTS`*   | Array    | An array of domain names allowed for the applciation  |
+| *`INSTALLED APPS`*  | Array    | An array of apps created in the project. This defaults to an array containing some apps which include *`admin`*, *`auth`*, *`sessions`*  etc.               |
+| *`MIDDLEWARE`*      | Array    | An array of *`wsgi`*  MIDDLEWARE                      |
+| *`DATABASES`*       | Dict     | Databases set up for the Application                  |
+| *`TEMPLATES`*       | Array    | This holds templating options in a dict item among which include, the `DIRS` and the `APP_DIRS` opitons. The `DIRS` option is a array of directories that will contain templates. The `APP_DIRS` option holds a boolean value indicating whether the `INSTALLED_APPS` directories should serve templates from a `templates` directory to be created inside of them. More details on this later in these notes.       |
 
 ### Inside urls.py
 This is for routing and setting up the routes and urls.
@@ -172,3 +174,52 @@ def index(request):
     response['content-type'] = 'applciation/json'
     return response
 ```
+This is the approach to keep in mind when building a `REST` API.
+
+
+##### Using *`render`* to render `html` templates
+This is made easy by using the *`render`* method imported from *`django.shortcuts`*. There are different approaches to accomplishing this with *`Django`*. *`render`* takes the request object as the first argument, and a relative path to the template as the second argument, and context dict `ctx` that includes data to be loaded inside the `html` template.
+
+```Py
+# posts/views.py
+
+def index_html(request):
+  ctx = {
+    name: 'John Doe'
+  }
+  return render(request, 'posts/index.html', ctx)
+```
+
+1. **Templates inside the `app`s' packages:**
+
+    Inside of 'posts', we will need to create a template for our *`index`* view to render. It is best that we create this in a templates folder inside our 'posts' *`app`*. Let's do that:
+
+    >*`mkdir ./posts/templates && mkdir ./posts/templates/posts`*
+
+    Then
+    >*`touch ./posts/templates/posts/index.html`*
+
+    Or however else you may.
+
+    Put your message in the `body` of the `html` file created.
+
+    Finally, it is important to ensure that the *`Django`* application is configured to search for templates inside of *`apps`*. In *`settings.py`*, find `TEMPLATES` setting and set the `APP_DIRS` option to `True`.
+
+2. **Creating a global `templates` directory**
+
+    At the base directory, create a `templates` directory and in it, create another directory *`posts`* to contain templates related to *`posts`*.
+
+    > *`mkdir templates && mkdir templates/posts`*
+
+    Then
+    > *`touch templates/posts/index.html`*
+
+    In *`settings.py`*, find `TEMPLATES` setting and find the `DIRS` option. This is an `array` of directories from which the template loader should find templates.
+
+    You can do this by including:
+    ```python
+    os.path.join(BASE_DIR, 'templates')
+    ```
+    as an item of the `DIRS` array. Django declares BASE_DIR in `settings.py`. It refers to the base directory of the project.
+
+With either approaches, the endpoint handler above should be able to locate the templates. The template loader loads templates from directories in `settings.py` `DIRS` item of `TEMPLATES` setting and also from `templates` directories in the apps in that order. The first template to be matched is loaded and rendered.
