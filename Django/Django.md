@@ -1,10 +1,13 @@
 # Django Framework
 
 - Open a project and make a virtual enviroment inside.
-- pip install django
+- Install Django `pip install django`
 
 ## Starting the project
-Run `django-admin startproject <projectname>` in the commandline inside the project folder
+Run:
+>`django-admin startproject <projectname>`
+
+in the commandline inside the project folder
 This will create a project folder named `projectname` as above. It will also contain a settings.py file with project settings.
 
 
@@ -58,11 +61,24 @@ Engine options include `mysql`, `oracle`, `postgresql`, `sqlite3`.
 
 
 #### Migrations
-This keeps tracks of changes within code that may require database schema changes to be applied to the tables and by executing `manage.py` with the option `migrate`, we're able to apply the changes to the database. Ensure that the correct database configuration is made in `settings.py`.
+This keeps track of changes within code affecting models that may require database tables schema changes to be applied to the tables and by executing `manage.py` with the option `migrate`, we're able to apply the changes to the database. Ensure that the correct database configuration is made in `settings.py`.
 
 ### The admin page
 Django creates an admin route by default and can be accessed using `/admin`. Here you'll be prompted to login. But first, you have to create at least one admin account using `createsuperuser` option on `manage.py`.
 
-run `./manage.py createsuperuser --username=<username> --email=<email>`.
+>`./manage.py createsuperuser --username=<username> --email=<email>`.
 
 Then use the credentials to login at `localhost:8000/admin`
+
+
+## Django `Apps`
+Django works with the concept of `apps`. `apps` organize related endpoints together. For instance, in a blogs related project, an `app` could be a module organizing all `posts` related endpoints.
+
+### Our first an app
+We will create an `app` called "posts" in our project.
+
+To create an `app`, we run `manage.py` with the `startapp` option in the terminal. i.e.
+
+>`./manage.py startapp posts`.
+
+This creates a package named "posts" with necessary files and directories populated. Among these include `/migrations`, `apps.py`, `models.py`, `tests.py` and `views.py`.
