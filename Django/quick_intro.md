@@ -369,6 +369,6 @@ or
 Run Server:
 >*`./manage.py runserver`*
 
-Access [posts index](`http://localhost:8000/posts/`) and you should see that `posts/index.html` extended the contents of `posts/base.html` which further extended contents of root `base.html`.
+Access [posts index](http://localhost:8000/posts/ "Index page of posts") and you should see that `posts/index.html` extended the contents of `posts/base.html` which further extended contents of root `base.html`.
 
 That's a quick overview of rendering and extending templates.
