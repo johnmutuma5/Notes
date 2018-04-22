@@ -18,12 +18,12 @@
 - [The admin page](#the-admin-page)
 - [Django *`Apps`*](#django-apps)
   - [Our first an app](#our-first-an-app)
-    - [Registering the *`app`*  in `settings.py`](#registering-the-app-in-settings.py)
-    - [Registering the *`app`*'s URLs](#registering-the-app's-urls)
-      - [URLs in the *`app`*  'posts'](#urls-in the-app-'posts')
+    - [Registering the *`app`* in `settings.py`](#registering-the-app-in-settingspy)
+    - [Registering the *`app`*'s URLs](#registering-the-apps-urls)
+      - [URLs in the *`app`*  'posts'](#urls-in the-app-posts)
     - [Endpoint handlers](#endpoint-handlers)
       - [Using HttpResponse for REST](#using-httpresponse-for-rest)
-      - [Using *`render`* for templates](#using-render-to render-html-templates)
+      - [Using *`render`* for templates](#using-render-to-render-html-templates)
     - [Making use of the templating engine](#making-use-of-the-templating-engine)
       - [Using `DTL`](#using-dtl)
       - [Adding to the `base.html` file](#adding-to-the-base.html-file)
@@ -31,7 +31,7 @@
       - [Extending with `app` templates](#extending-with-app-templates)
       - [Passing dynamic data](#passing-dynamic-data)
     - [A little about using `models`](#a-little-about-using-models)
-    - [The `admin.py` in the `app`](#the-admin.py-in-the-app)
+    - [The `admin.py` in the `app`](#the-adminpy-in-the-app)
 
 
 ## Preparing to start the project
@@ -123,7 +123,7 @@ To create an *`app`*, we run *`manage.py`*  with the *`startapp`*  option in the
 
 This creates a package named "posts" with necessary files and directories populated. Among these include *`/migrations`*, *`admin.py`*, *`apps.py`*, *`models.py`*, *`tests.py`*  and *`views.py`*.
 
-#### Registering the *`app`*  in settings.py
+#### Registering the *`app`* in settings.py
 Once an app is created, we ought to include it as an *`array`*  member in the *`INSTALLED_APPS`*  setting inside of *`settings.py`*. This is very important.
 
 
