@@ -20,7 +20,7 @@
   - [Our first an app](#our-first-an-app)
     - [Registering the *`app`* in `settings.py`](#registering-the-app-in-settingspy)
     - [Registering the *`app`*'s URLs](#registering-the-apps-urls)
-      - [URLs in the *`app`*  'posts'](#urls-in the-app-posts)
+      - [URLs in the *`app`*  'posts'](#urls-in-the-app-posts)
     - [Endpoint handlers](#endpoint-handlers)
       - [Using HttpResponse for REST](#using-httpresponse-for-rest)
       - [Using *`render`* for templates](#using-render-to-render-html-templates)
