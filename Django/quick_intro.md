@@ -1,7 +1,12 @@
 # PYTHON DJANGO WEB FRAMEWORK
 
-_**NB**: In these notes, the command line commands are applicable to UNIX-based operating systems._
+**NB**:
+- In these notes, the command line commands are applicable to UNIX-based operating systems
+- These notes don't focus on UI pretty styling, expect little `CSS` and `JavaScript`
 
+_
+
+## Creating the project
 - Open a project and make a virtual enviroment inside.
 - Install Django *`pip install django`*
 
@@ -22,7 +27,7 @@ This will create a project folder named *`projectname`*  as above. It will also 
 | *`INSTALLED APPS`*  | Array    | An array of apps created in the project. This defaults to an array containing some apps which include *`admin`*, *`auth`*, *`sessions`*  etc.               |
 | *`MIDDLEWARE`*      | Array    | An array of *`wsgi`*  MIDDLEWARE                      |
 | *`DATABASES`*       | Dict     | Databases set up for the Application                  |
-| *`TEMPLATES`*       | Array    | This holds templating options in a dict item among which include, the `DIRS` and the `APP_DIRS` opitons. The `DIRS` option is a array of directories that will contain templates. The `APP_DIRS` option holds a boolean value indicating whether the `INSTALLED_APPS` directories should serve templates from a `templates` directory to be created inside of them. More details on this later in these notes.       |
+| *`TEMPLATES`*       | Array    | This holds templating options in a dict item among which include, the `DIRS` and the `APP_DIRS` opitons. The `DIRS` option is a array of directories that will contain `html` templates. The `APP_DIRS` option holds a boolean value indicating whether the `INSTALLED_APPS` directories should serve templates from a `templates` directory to be created inside of them. More details on this later in these notes.       |
 
 ### Inside urls.py
 This is for routing and setting up the routes and urls.
@@ -107,7 +112,7 @@ The *`include`*  method called above with *`posts.urls`*  is going to expect the
 
 Besides the *`path`*  function, URL patterns can also be created using the *`url`*  or the *`re_path`*  functions also imported from *`django.urls`*. The difference between these is that *`path`*  takes url templates e.g. *`r'posts/<id>/'`*, whereas *`re_path`*  and *`url`*  take *`regex`*  patterns e.g. *`r'^posts/(?P<id>\d+)$/'`*.
 
-According to [this](https://docs.djangoproject.com/en/2.0/ref/urls/#url), *`url`*  is alias to *`re_path`*  and is bound for deprecation, and is best avoided.
+According to [this documentation](https://docs.djangoproject.com/en/2.0/ref/urls/#url), *`url`*  is alias to *`re_path`*  and is bound for deprecation, and is best avoided.
 
 ##### URLs in the *`app`*  'posts'
 Inside of *`app`*  'posts', we need to create a new file called *`urls.py`*. I like the command line, so quickly, in the project root directory, run:
@@ -192,7 +197,7 @@ def index_html(request):
 
 1. **Templates inside the `app`s' packages:**
 
-    Inside of 'posts', we will need to create a template for our *`index`* view to render. It is best that we create this in a templates folder inside our 'posts' *`app`*. Let's do that:
+    Inside of 'posts', we will need to create a template for our *`index_html`* view to render. It is best that we create this in a templates folder inside our 'posts' *`app`*. Let's do that:
 
     >*`mkdir ./posts/templates && mkdir ./posts/templates/posts`*
 
@@ -220,6 +225,150 @@ def index_html(request):
     ```python
     os.path.join(BASE_DIR, 'templates')
     ```
-    as an item of the `DIRS` array. Django declares BASE_DIR in `settings.py`. It refers to the base directory of the project.
+    as an item of the `DIRS` array. Django declares `BASE_DIR` in `settings.py`. It refers to the base directory of the project.
 
-With either approaches, the endpoint handler above should be able to locate the templates. The template loader loads templates from directories in `settings.py` `DIRS` item of `TEMPLATES` setting and also from `templates` directories in the apps in that order. The first template to be matched is loaded and rendered.
+With either approaches, the endpoint handler above, `index_html`, should be able to locate the templates. The template loader loads templates from directories in `settings.py` `DIRS` item of `TEMPLATES` setting and also from `templates` directories in the apps in that order. The first template to be matched is loaded and rendered.
+
+### Making use of the templating engine
+This is a brief overview of using Django Templating Language, `DTL`, to generate `html` templates on the backend. `DTL` is very similar to `Jinja2` Templating Language.
+
+From `Django1.8`, it is possible to use `Jinja2` as a templating engine. This would require a `pip` install of `Jinja2`, tweaking the `TEMPLATES` setting in `settings.py` and a little adjustment of `Jinja2` environment to dump some python functions for use inside of templates e.g. `path`, `static`, `filter`, etc. But these are beyond the scope of these notes. Most of the notes on `DTL` are going to be applicable to `Jinja2`.
+
+#### Using `DTL`
+`DTL` allows us to create a `base.html` or `layout.html` in the templates directory which is then extended by other templates, this is along the principle of `DRY` in computer programming.
+
+Essentially, each `app` could have it's own templates and `base.html`. But depending on how the front-end application will desirably look, it can be necessary to have at least a global `base.html` and `index.html` in the base templates directory.
+
+To do this we can create these `html` files in our templates directory:
+
+`base.html`:
+>*`touch ./templates/base.html`*
+
+`index.html`:
+>*`touch ./templates/index.html`*
+
+If necessary, we can then create a `base.html` in our 'posts' `app` to hold `html` that is common across all the templates in the 'posts' `app`:
+
+>*`touch ./posts/templates/posts/base.html`*
+
+#### Adding to the `base.html` file
+In the base templates folder, we will include `html` text that is common globally.
+
+```html
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Django Notes</title>
+  </head>
+  <body>
+    <div class="main">
+      <h3>Any globally common content can go here in root base template; these are the kinds that persist across all pages</h3>
+
+      {% block main %}
+      {% endblock %}
+
+      <h3>Globally common content can also come here in root base template after loading content from extending blocks</h3>
+    </div>
+  </body>
+</html>
+```
+
+Here,
+```html
+  {% block main %}
+  {% endblock %}
+
+```
+creates space for other templates to populate their specific contents for display.
+
+#### Extending `base.html`
+Other templates can now be able to extend `base.html` and put content in the space availed by `block main` in the template.
+
+Let us extend the `index.html` in our base templates folder. The first thing we want to do here is to point the file to the appropriate template to extend. We can do this as follows:
+
+```html
+<!-- templates/index.html -->
+
+{% extends 'base.html' %}
+```
+This
+Then add something to the `block main`. As follows:
+
+```html
+<!-- templates/index.html -->
+
+{% extends 'posts/base.html' %}
+
+{% block main %}
+<p>This is a lovely comment in the base index</p>
+{% endblock %}
+```
+
+##### Extending with `app` templates
+We created a global `base.html` and this should ideally be extensible by the templates of each `app` as we have done with the base index.
+
+Let's try this.
+
+We will use the `base.html` template inside `posts/templates/posts` to extend the global `base.html`. Let us add the `extends` directive to the 'posts' base `html` template, by adding:
+
+```html
+<!-- posts/templates/posts/base.html -->
+{% extends 'base.html' %}
+```
+
+If you are a command line maniac, try:
+> *`echo "{% extends 'base.html' %}" > ./posts/templates/posts/base.html`*
+
+After extending `base.html`, `posts/base.html` now has access to the `block main` in the root `base.html` and we can put some content there:
+
+```html
+<!-- posts/templates/posts/base.html -->
+
+{% extends 'base.html' %}
+
+{% block main %}
+<section class="">
+  <h4>This is a nice heading in posts base</h4>
+  <p>We can also throw in some general posts related controls and components here in posts base </p>
+
+  {% block posts %}
+  {% endblock %}
+
+</section>
+{% endblock %}
+```
+
+After successfully extending root `base.html`, we can go ahead and extend `posts/base.html` with `posts/index.html`. `posts/index.html` shall be expecting to populate the extended template's block with content. The block in this case is `block posts`.
+
+Let us fill `block posts` with some posts:
+
+```html
+<!-- posts/templates/posts/index.html -->
+{% extends 'posts/base.html' %}
+
+{% block posts %}
+<article class="posts">
+  <p>This is a lovely post in posts index</p>
+  <p>This is a lovely post in posts index</p>
+  <p>This is a lovely post in posts index</p>
+</article>
+{% endblock %}
+```
+
+Now activate the virtual environment and then run the server.
+
+Activating venv:
+>*`. ../venv/bin/activate`*
+
+or
+>*`source ../venv/bin/activae`*
+
+Run Server:
+>*`./manage.py runserver`*
+
+Access [posts index](`http://localhost:8000/posts/`) and you should see that `posts/index.html` extended the contents of `posts/base.html` which further extended contents of root `base.html`.
+
+That's a quick overview of rendering and extending templates.
