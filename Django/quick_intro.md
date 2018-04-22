@@ -4,11 +4,15 @@
 - In these notes, the command line commands are applicable to UNIX-based operating systems
 - These notes don't focus on UI pretty styling, expect little `CSS` and `JavaScript`
 
-_
+# TABLE OF CONTENTS
+- [Preparing to start the project](#preparing-to-start-the-project)
+- [Passing dynamic data](#Passing-dynamic-data)
 
-## Creating the project
+
+## Preparing to start the project
 - Open a project and make a virtual enviroment inside.
 - Install Django *`pip install django`*
+
 
 ## Starting the project
 Run:
@@ -183,15 +187,13 @@ This is the approach to keep in mind when building a `REST` API.
 
 
 ##### Using *`render`* to render `html` templates
-This is made easy by using the *`render`* method imported from *`django.shortcuts`*. There are different approaches to accomplishing this with *`Django`*. *`render`* takes the request object as the first argument, and a relative path to the template as the second argument, and context dict `ctx` that includes data to be loaded inside the `html` template.
+This is made easy by using the *`render`* method imported from *`django.shortcuts`*. There are different approaches to accomplishing this with *`Django`*. *`render`* takes the request object as the first argument, and a relative path to the template as the second argument, and context dict `ctx` that includes dynamic data to be loaded inside the `html` template, more on this later in these notes.
 
 ```Py
 # posts/views.py
 
-def index_html(request):
-  ctx = {
-    name: 'John Doe'
-  }
+def posts_index(request):
+  ctx = None
   return render(request, 'posts/index.html', ctx)
 ```
 
@@ -372,3 +374,37 @@ Run Server:
 Access [posts index](http://localhost:8000/posts/ "Index page of posts") and you should see that `posts/index.html` extended the contents of `posts/base.html` which further extended contents of root `base.html`.
 
 That's a quick overview of rendering and extending templates.
+
+#### Passing dynamic data
+As mentioned earlier, the `render` function takes a third argument which includes key:pair values of data to be passed on to the template engine. It is usually passed as a `Python` `dict` and the values are accessible inside of the template by putting the key inside double curly braces `{{ <key> }}`. This loads the `value` passed.
+
+Let's try this.
+
+In our root `base.html`, let us load the page title dynamically by letting the endpoint handlers pass the title to be placed in the `title` `html` tags. We're going to replace the hard coded title with a dynamic title that is going to be passed by each endpoint handler in the context `dict`.
+
+This is what the title tag shall look like:
+```html
+<!-- templates/base.html -->
+
+...
+
+  <head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+  </head>
+
+...
+```
+The template engine is going to expect that the endpoint handlers pass on this information in the context `dict`. Heading over to `posts/views.py`, we're going to create the `contx` `dict`. At this point, the only information we require to pass is the `title`:
+
+```Py
+# posts/views.py
+
+def posts_index(request):
+  ctx = {'title': 'Django Learning - A quick guide'}
+  return render(request, 'posts/index.html', ctx)
+```
+
+Reloading our page, posts view, [here](http://localhost:8000/posts/ "posts view"), we should see the `title` set above show as the page title on the page's `Tab`.
+
+Any dynamic data can be passed and accessed like that anywhere in the template.
