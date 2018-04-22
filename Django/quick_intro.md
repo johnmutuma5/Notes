@@ -6,7 +6,7 @@
 
 # TABLE OF CONTENTS
 - [Preparing to start the project](#preparing-to-start-the-project)
-- [Passing dynamic data](#Passing-dynamic-data)
+- [Passing dynamic data](#passing-dynamic-data)
 
 
 ## Preparing to start the project
