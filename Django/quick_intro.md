@@ -16,7 +16,22 @@
 - [Setting up the database](#setting-up-the-database)
   - [Migrations](#migrations)
 - [The admin page](#the-admin-page)
-- [Django *`Apps`*](#Django-*`Apps`*)
+- [Django *`Apps`*](#django-apps)
+  - [Our first an app](#our-first-an-app)
+    - [Registering the *`app`*  in `settings.py`](#registering-the-app-in-settings.py)
+    - [Registering the *`app`*'s URLs](#registering-the-app's-urls)
+      - [URLs in the *`app`*  'posts'](#urls-in the-app-'posts')
+    - [Endpoint handlers](#endpoint-handlers)
+      - [Using HttpResponse for REST](#using-httpresponse-for-rest)
+      - [Using *`render`* for templates](#using-render-to render-html-templates)
+    - [Making use of the templating engine](#making-use-of-the-templating-engine)
+      - [Using `DTL`](#using-dtl)
+      - [Adding to the `base.html` file](#adding-to-the-base.html-file)
+      - [Extending `base.html`](#extending-base.html)
+      - [Extending with `app` templates](#extending-with-app-templates)
+      - [Passing dynamic data](#passing-dynamic-data)
+    - [A little about using `models`](#a-little-about-using-models)
+    - [The `admin.py` in the `app`](#the-admin.py-in-the-app)
 
 
 ## Preparing to start the project
@@ -130,7 +145,7 @@ Besides the *`path`*  function, URL patterns can also be created using the *`url
 
 According to [this documentation](https://docs.djangoproject.com/en/2.0/ref/urls/#url), *`url`*  is alias to *`re_path`*  and is bound for deprecation, and is best avoided.
 
-##### URLs in the *`app`*  'posts'
+##### URLs in the *`app`* 'posts'
 Inside of *`app`*  'posts', we need to create a new file called *`urls.py`*. I like the command line, so quickly, in the project root directory, run:
 >*`touch ./posts/urls.py`*
 
@@ -176,7 +191,8 @@ urlpatterns = [
 
 We will, thereafter, need to define a function *`index`* inside *`views.py`* to be used as the endpoint handler as in the code snippets above.
 
-##### Endpoint handlers
+#### Endpoint handlers
+##### Using HttpResponse for REST
 All the endpoint handlers will be *`callables`* that take *`request`* as the first arguments.
 
 They will also need to return a *`response`*. A *`response`* in Django can be created using *`render`* method from *`django.shortcuts`* or *`HttpResponse`* from *`django.http`*.
@@ -243,12 +259,12 @@ def posts_index(request):
 
 With either approaches, the endpoint handler above, `index_html`, should be able to locate the templates. The template loader loads templates from directories in `settings.py` `DIRS` item of `TEMPLATES` setting and also from `templates` directories in the apps in that order. The first template to be matched is loaded and rendered.
 
-### Making use of the templating engine
+#### Making use of the templating engine
 This is a brief overview of using Django Templating Language, `DTL`, to generate `html` templates on the backend. `DTL` is very similar to `Jinja2` Templating Language.
 
 From `Django1.8`, it is possible to use `Jinja2` as a templating engine. This would require a `pip` install of `Jinja2`, tweaking the `TEMPLATES` setting in `settings.py` and a little adjustment of `Jinja2` environment to dump some python functions for use inside of templates e.g. `path`, `static`, `filter`, etc. But these are beyond the scope of these notes. Most of the notes on `DTL` are going to be applicable to `Jinja2`.
 
-#### Using `DTL`
+##### Using `DTL`
 `DTL` allows us to create a `base.html` or `layout.html` in the templates directory which is then extended by other templates, this is along the principle of `DRY` in computer programming.
 
 Essentially, each `app` could have it's own templates and `base.html`. But depending on how the front-end application will desirably look, it can be necessary to have at least a global `base.html` and `index.html` in the base templates directory.
@@ -265,7 +281,7 @@ If necessary, we can then create a `base.html` in our 'posts' `app` to hold `htm
 
 >*`touch ./posts/templates/posts/base.html`*
 
-#### Adding to the `base.html` file
+##### Adding to the `base.html` file
 In the base templates folder, we will include `html` text that is common globally.
 
 ```html
@@ -298,7 +314,7 @@ Here,
 ```
 creates space for other templates to populate their specific contents for display.
 
-#### Extending `base.html`
+##### Extending `base.html`
 Other templates can now be able to extend `base.html` and put content in the space availed by `block main` in the template.
 
 Let us extend the `index.html` in our base templates folder. The first thing we want to do here is to point the file to the appropriate template to extend. We can do this as follows:
@@ -387,7 +403,7 @@ Access [posts index](http://localhost:8000/posts/ "Index page of posts") and you
 
 That's a quick overview of rendering and extending templates.
 
-#### Passing dynamic data
+##### Passing dynamic data
 As mentioned earlier, the `render` function takes a third argument which includes key:pair values of data to be passed on to the template engine. It is usually passed as a `Python` `dict` and the values are accessible inside of the template by putting the key inside double curly braces `{{ <key> }}`. This loads the `value` passed.
 
 Let's try this.
@@ -422,7 +438,7 @@ Reloading our page, posts view, [here](http://localhost:8000/posts/ "posts view"
 Any dynamic data can be passed and accessed like that anywhere in the template.
 
 
-### A little about using `models`
+#### A little about using `models`
 
 In light of the Model Templates Views `MTV`, or Models Views Controllers `MVC` design patterns, Django `apps` should contain `models.py` besides `views.py` and `templates`. These are autogenerated when we use `./manage.py startapp <appname>`.
 
