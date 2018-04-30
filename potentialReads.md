@@ -1,0 +1,1 @@
+### Algorithm design manual - Skeina
