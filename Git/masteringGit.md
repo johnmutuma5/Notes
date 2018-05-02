@@ -107,5 +107,35 @@ Reset moves the current branch and `HEAD` to point to a particular `commit` or `
 
 `git reset` with the `--hard` option resets the branch to point to a specified commit and updates the `index` and the `working area` with files in that commit's tree. The `--mixed` option copies the files only to the `index` and not to the `working area`. This can be useful when undoing a commit(s).
 
+
+## More tools
+### The stash
+The `stash` allows us to temporarily hold changes to files without for a future commit. This way, we can even checkout other branches without first committing changes in the current branch probably when the changes are not ready for commit.
+
+Think also of an instance where you found yourself working on the wrong branch, you have made changes but you did not intend to make them in the current branch. If you have not committed them yet, you can just move them to the `stash` and checkout the correct branch and pull the changes from the `stash`. If you had committed, you may want to think of a `reset` with the `--mixed` option and then `stash` them.
+
+If we added some changes in `menu.md` such that we get an updated file `menu.md"` and then add it to the `index` for staging with `git add menu.md`. We would end up with uncommited changes as follows;
+
+| Stash     | Working area | The index | The repository |
+|:---------:|:------------:|:---------:|:--------------:|
+|           | menu.md"     | menu.md"  | menu.md        |
+|           | recipes      | recipes   | recipes        |
+
+If, for instance, we'd like to make other changes and commit them either in the current branch or in another by checking out, yet we do not want to commit the current changes, we'd like to hold on to them without losing them until we're ready to improve adjust and/or commit them, then we can push them to the `stash`.
+
+Use `git stash` to `stash` uncommited changes both from the `index` and the `working area`. The two areas are then updated to what the `HEAD` looks like in the `repository`.
+
+
+| Stash     | Working area | The index | The repository |
+|:---------:|:------------:|:---------:|:--------------:|
+| menu.md"  | menu.md      | menu.md   | menu.md        |
+|           | recipes      | recipes   | recipes        |
+
+`git stash` with the `--include-untracked` option includes files that are not `tracked` yet.
+`git stash` with the `--keep-index` option excludes already `staged` or `indexed` files from the stash.
+
+Once were done with other tasks and were now ready to proceed with the stashed changes and probably commit them after confirming them, we can checkout to the relevant branch, and use `git stash apply` to pull the changes from the `stash` and continue working with them.
+
+
 ## Acknowledgements
 Paola Perrotta - Pluralsight tutor
