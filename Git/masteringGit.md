@@ -136,6 +136,52 @@ Use `git stash` to `stash` uncommited changes both from the `index` and the `wor
 
 Once were done with other tasks and were now ready to proceed with the stashed changes and probably commit them after confirming them, we can checkout to the relevant branch, and use `git stash apply` to pull the changes from the `stash` and continue working with them.
 
+After you're done, you can free up the `stash` with `git stash clear`.
+
+### Handling conflicts
+
+### Working with paths
+More on these later
+
+## Exploring the History
+### A commit by any other name
+First, a nice log of history can be accessed by `git log --graph --oneline --decorate`. To show details of a commit, `git show <commit>`. `<commit>` here can be any object that is a commit or references a commmit like a branch, HEAD, tag or the commit hash.
+
+`git show bd948f` will show details of the commit whose hash begin with `bd948f`.
+`git show branch` will show the details of the last commit of the `branch`.
+`git show HEAD` will show the details of the commit on which `HEAD` points i.e. the current branch.
+`git show HEAD^` will show the details of the latest commit in the current branch. The number of carrets `^` determines how may commits to count backwards. e.g. to show the third latest commit you'd run `git show HEAD^^^`. However, there is a shorter form using the tilde `~`. The same effect can be achieved by running `git show HEAD~3`.
+`git show HEAD@{"1 week ago"}` show the details of the commit to which `HEAD` was pointing a week ago.
+
+### Using git log with `..`
+`git log <commit0>..<commit1>` shows the log of commits that have happened between `commit0` and `commit1`. i.e. show me commits that are ancestors of `commit1` but not ancestors of `commit0`.
+
+
+## Fixing mistakes
+### A golden rule
+Never change shared History.
+
+#### Fixing the last commit  
+`git commit --amend` fixes the last commit by creating a new commit based on the last commit and including new changes that have taken place since the last commit. Then moves HEAD and branch to the newly created commit. The original commit is garbage collected. This can be useful in situations whereby you're in the process of making another commit but you'd have preferred if it was part of the previous commit.
+
+What if you wanted to fix a commit that happened a few commits ago?
+
+### Reverting commits
+A revert creates a new commit that does the exact opposite of the commit that is being reverted. This is useful when you'd like to undo the changes brought about by a commit. `git revert <commit>`.
+
+### Interactive Rebases
+Using `git rebase -i <commit>` we can perform an interactive rebase which allows us to choose to keep or discard commits, rearrange them, edit and/or reword them and squash them together.
+
+`Git` produces an editor upon which you can select the choices available for each commit in the history until the specified commit.
+
+During squashes, you may find merge conflicts that you'll need to solve and then continue with the rebase.
+
+Before pushing new changes to a remote repository for sharing, it is always good to clean up the history of the new changes only, using an interactive rebase and then sharing the changes once you're satisfied with the commits.
+
+
+### Git reflog
+Show the entire activity log for a given reference. e.g. branch. It can also be useful for retrieving discarded commits' hashes.
+
 
 ## Acknowledgements
 Paola Perrotta - Pluralsight tutor
