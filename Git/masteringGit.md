@@ -182,6 +182,18 @@ Before pushing new changes to a remote repository for sharing, it is always good
 ### Git reflog
 Show the entire activity log for a given reference. e.g. branch. It can also be useful for retrieving discarded commits' hashes.
 
+## Finding your workflow
+### Distribution models
+- **Peer to peer** - peers work on their independent repos and each developer keeps pulling changes from the other developers. This becomes very hard to keep up with when the team size grows.
+
+- **The Centralized model** - This solves the problem pointed out above with peer to peer model. Developers have a common repo that they pull changes from and push changes to their local repos.
+
+- **The Pull Request model** - This is a twist to the centralized model where only one of the developers is the maintainer of the origin repo. Other developers become contributors. They can not push changes to the at least to the master of the origin repo. They have an option of either pushing to the origin but with a feature/bug/chore branch, or to notify the maintainer to pull their changes to his/her local repo for review and comments. They do this by creating a Pull Request which the maintainer checks out and pushes to the origin master as official changes.
+
+
+
+
+
 
 ## Acknowledgements
 Paola Perrotta - Pluralsight tutor
