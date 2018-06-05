@@ -23,3 +23,10 @@ We will install Jest as a development dependency and save it to our `package.jso
 
 or
 > npm install -D jest
+
+
+### Create a function to test
+
+```js
+const add = (num, num1) => num + num1;
+```
