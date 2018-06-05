@@ -155,11 +155,7 @@ test("response begins with Successful", () => {
 // functions.js
 
 const functions = {
-    add: (num, num1) => num + num1,
-    getUser: () => ({
-        name: "John",
-        occupation: "Software"
-    }),
+    // ...
     getResponse: () => 'Successful. Operation approved!'
 }
 
@@ -186,7 +182,7 @@ const functions = require('./functions');
 test("it gets correct async message: with promise", () => {
     expect.assertions(1);
     return functions.getMsgPromise().then((message) => {
-        expect(user).toEqual('Hello');
+        expect(message).toEqual('Hello world!');
     });
 })
 ```
@@ -196,12 +192,7 @@ test("it gets correct async message: with promise", () => {
 const asyncCalls = require('../asyncCalls/asyncCalls');
 
 const functions = {
-    add: (num, num1) => num + num1,
-    getUser: () => ({
-        name: "John",
-        occupation: "Software"
-    }),
-    getResponse: () => 'Successful. Operation approved!',
+    // ...
     getMsgPromise: () => {
         prom = asyncCalls.getMsgPromise();
         return prom;
@@ -219,7 +210,7 @@ const getMsgPromise = () => {
         const msg = 'Hello world!';
         // delay the message 1 seconds
         setTimeout(() => {
-            resolve msg;
+            resolve(msg);
         }, 1000);
     });
     return prom;
@@ -230,4 +221,22 @@ const asyncCalls = {
 }
 
 module.exports = asyncCalls;
+```
+
+
+#### Testing Asynchronouns functions that don't return a promise `async`/`await`
+
+Here we define our callback function as an Asynchronouns function with JavaScript's `async` keyword and indicate in our function's body the part we intend to `await` a Promise to give us a value. This is the part that we expect to delay asynchronously.
+
+```js
+// functions.test.js
+
+const functions = require('./functions');
+
+// ...
+test("it gets correct async message: without promise", async () => {
+    expect.assertions(1);
+    const message = await functions.getMsgAsync();
+    expect(message).toEqual('Hello world!');
+})
 ```
