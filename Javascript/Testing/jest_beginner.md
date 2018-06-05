@@ -4,7 +4,7 @@
 
 [![this](https://img.youtube.com/vi/7r4xVDI2vho/maxresdefault.jpg)](https://www.youtube.com/watch?v=7r4xVDI2vho 'Testing JavaScript with Jest')
 
-Link to git repo:
+Link to git repo: [here](https://github.com/johnmutuma5/Testing.git)
 
 ## Table of Contents
 
@@ -25,16 +25,6 @@ or
 > npm install -D jest
 
 
-### Create a function to test
-
-```js
-// functions.js
-
-const add = (num, num1) => num + num1;
-
-module.exports = add;
-```
-
 ### Our first Jest test
 
 ```js
@@ -48,6 +38,17 @@ test("it adds correctly", () => {
 });
 
 ```
+
+### Create the function to test
+
+```js
+// functions.js
+
+const add = (num, num1) => num + num1;
+
+module.exports = add;
+```
+
 
 A test will be provoked by call to a function `test` which takes the description of the test The callback function is expected to call another function `exppect` which calls the function to be tested passing testing arguments to it.
 
@@ -94,19 +95,6 @@ test("it adds correctly", () => {
 
 See [**this answer**](https://stackoverflow.com/a/50693976/6951110, 'toBe vs toEqual') on Stackoverflow.
 
-```js
-// functions.js
-
-const functions = {
-    add: (num, num1) => num + num1,
-    getUser: () = ({
-        name: "John",
-        occupation: "Software"
-    })
-}
-
-module.exports = add;
-```
 
 ```js
 // functions.test.js
@@ -125,8 +113,54 @@ test("it returns correct user", () => {
 });
 ```
 
+```js
+// functions.js
+
+const functions = {
+    add: (num, num1) => num + num1,
+    getUser: () = ({
+        name: "John",
+        occupation: "Software"
+    })
+}
+
+module.exports = functions;
+```
+
+
 The above test will not pass because `user` and the user from `getUser` may be similar visually but they refer to two different objects that look alike. Here, we want to use `toEqual` instead of `toBe`.
 
 
 #### Regex Matchers
 We can test whether a value matches a given regular expression using the `toMatch` matcher.
+
+
+```js
+// functions.test.js
+
+const functions = require('./functions');
+
+// ...
+
+test("response begins with Successful", () => {
+    let match = /^Successful/;
+    let response = functions.getResponse();
+    expect(response).toMatch(match);
+})
+```
+
+
+```js
+// functions.js
+
+const functions = {
+    add: (num, num1) => num + num1,
+    getUser: () => ({
+        name: "John",
+        occupation: "Software"
+    }),
+    getResponse: () => 'Successful. Operation approved!'
+}
+
+module.exports = functions;
+```
