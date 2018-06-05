@@ -68,6 +68,7 @@ The `matcher` compares the output of the tested function and the `matchers` argu
 `toBeLessThan` - matches if the value is `<`\
 `toBeLessThanOrEqual` - matches `<==`\
 `toMatch` - matches with regex. More [here](#regex-matchers)
+`toContain` - matches when an array contains a given value
 
 
 #### Negating a matcher
@@ -164,3 +165,5 @@ const functions = {
 
 module.exports = functions;
 ```
+
+This can also be used with `.not`
