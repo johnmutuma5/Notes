@@ -57,6 +57,18 @@ The return value of a call to `expect` is chained with a `matcher`(*more on matc
 
 The `matcher` compares the output of the tested function and the `matchers` arguments and if a match if found, then the test has passed. Our `matcher` in this case is `toBe`.
 
+#### More matchers
+##### Checking for 'falsy' and 'truthy' values
+`toBeNull` - matches for `null`\
+`toBeUndefined` - matches `undefined`\
+`toBeDefined` - the opposite of `toBeUndefined`\
+`toBeTruthy` - matches anything that would pass as true in an `if` statement\
+`toBeFalsy` - the opposite of `toBeTruthy`\
+`toBeLessThan` - matches if the value is `<`\
+`toBeLessThanOrEqual` - matches `<==`\
+`toMatch` - matches with regex. More [here](#regex-matchers)
+
+
 #### Negating a matcher
 A match returns `true` for a match. We may sometimes want to return true for no match! For instance, we may want to test that the add function does not return 5 when we pass 2 and 2 as its arguments. Thus we test that `add` does not return 5 for 2 + 2.
 
@@ -67,8 +79,54 @@ This is easily achieved with jest by preceeding the matcher with `.not`.
 
 const add = require('./functions');
 
+// ...
 
 test("it adds correctly", () => {
     expect(add(2, 2)).not.toBe(5);
 });
 ```
+
+#### `toBe` vs `toEqual`
+
+`toBe` tests for same value strict equality, i.e. whereby you test that two objects are the same object including memory address. Note, not only equal but one and the same.
+
+`toEqual` does a `visual` comparison that two objects are similar, not necessarily being the same object.
+
+See [**this answer**](https://stackoverflow.com/a/50693976/6951110, 'toBe vs toEqual') on Stackoverflow.
+
+```js
+// functions.js
+
+const functions = {
+    add: (num, num1) => num + num1,
+    getUser: () = ({
+        name: "John",
+        occupation: "Software"
+    })
+}
+
+module.exports = add;
+```
+
+```js
+// functions.test.js
+
+const functions = require('./functions');
+
+// ...
+
+test("it returns correct user", () => {
+    let user = {
+        name: "John",
+        occupation: "Software"
+    };
+
+    expect(functions.getUser()).toBe(user);
+});
+```
+
+The above test will not pass because `user` and the user from `getUser` may be similar visually but they refer to two different objects that look alike. Here, we want to use `toEqual` instead of `toBe`.
+
+
+#### Regex Matchers
+We can test whether a value matches a given regular expression using the `toMatch` matcher.
