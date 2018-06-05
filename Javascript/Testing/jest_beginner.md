@@ -67,8 +67,8 @@ The `matcher` compares the output of the tested function and the `matchers` argu
 `toBeFalsy` - the opposite of `toBeTruthy`\
 `toBeLessThan` - matches if the value is `<`\
 `toBeLessThanOrEqual` - matches `<==`\
-`toMatch` - matches with regex. More [here](#regex-matchers)
-`toContain` - matches when an array contains a given value
+`toMatch` - matches with regex. More [here](#regex-matchers)\
+`toContain` - matches when an array contains a given value\
 
 
 #### Negating a matcher
@@ -224,7 +224,7 @@ module.exports = asyncCalls;
 ```
 
 
-#### Testing Asynchronouns functions that don't return a promise `async`/`await`
+#### Testing Asynchronouns functions with `async`/`await`
 
 Here we define our callback function as an Asynchronouns function with JavaScript's `async` keyword and indicate in our function's body the part we intend to `await` a Promise to give us a value. This is the part that we expect to delay asynchronously.
 
