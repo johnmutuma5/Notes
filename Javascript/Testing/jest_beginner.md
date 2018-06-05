@@ -167,3 +167,67 @@ module.exports = functions;
 ```
 
 This can also be used with `.not`
+
+
+### Asynchronouns Testing
+Asynchronouns requests or functions can be called in JavaScript using the `Promise`.`then`.`catch` pattern or the `async`-`await` pattern.
+
+#### Testing Asynchronouns functions that return a Promise
+If a function being tested returns a `Promise`, then `jest` testing expects that we return a call to the function chained with `.then` which handles the `expect` part of the test.
+
+It is also good practise to include the expected number of assertions with async calls to consider a test as successful in testing all the assertions expected. We do this with `expect.assertions(<num>)` In our test below, we expect a single assertion i.e. `expect`, hence 1 assertion.
+
+```js
+// functions.test.js
+
+const functions = require('./functions');
+
+// ...
+test("it gets correct async message: with promise", () => {
+    expect.assertions(1);
+    return functions.getMsgPromise().then((message) => {
+        expect(user).toEqual('Hello');
+    });
+})
+```
+
+```js
+// functions.js
+const asyncCalls = require('../asyncCalls/asyncCalls');
+
+const functions = {
+    add: (num, num1) => num + num1,
+    getUser: () => ({
+        name: "John",
+        occupation: "Software"
+    }),
+    getResponse: () => 'Successful. Operation approved!',
+    getMsgPromise: () => {
+        prom = asyncCalls.getMsgPromise();
+        return prom;
+    }
+}
+
+module.exports = functions;
+```
+
+
+```js
+// asyncCalls.js
+const getMsgPromise = () => {
+    prom = new Promise((resolve, reject) => {
+        const msg = 'Hello world!';
+        // delay the message 1 seconds
+        setTimeout(() => {
+            resolve msg;
+        }, 1000);
+    });
+    return prom;
+};
+
+const asyncCalls = {
+    getMsgPromise: getMsgPromise
+}
+
+module.exports = asyncCalls;
+```
