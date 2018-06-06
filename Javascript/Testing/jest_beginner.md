@@ -7,7 +7,23 @@
 Link to git repo: [here](https://github.com/johnmutuma5/Testing.git)
 
 ## Table of Contents
-
+- [Managing project dependencies](#managing-project-dependencies)
+- [Installing Jest](#installing-jest)
+- [Our first Jest test](#our-first-jest-test)
+- [Create the function to test](#create-the-function-to-test)
+- [Matchers](#matchers)
+    - [More matchers](#more-matchers)
+    - [Checking for 'falsy' and 'truthy' values](#checking-for-falsy-and-truthy-values)
+    - [Negating a matcher](#negating-a-matcher)
+    - [`toBe` vs `toEqual`](#tobe-vs-toequal)
+    - [Regex Matchers](#regex-matchers)
+- [Asynchronouns Testing](#asynchronouns-testing)
+    - [Testing Asynchronouns functions that return a Promise](#testing-asynchronouns-functions-that-return-a-promise)
+    - [Testing Asynchronouns functions with `async`/`await`](#testing-asynchronouns-functions-with-async/await`)
+- [DRY principle in Jest Testing](#dry-principle-in-Jest-testing)
+- [Test Suites](#test-suites)
+- [Running Jest automatically with File Edits](#running-jest-automatically-with file-edits)
+- [Jest Documentation](#jest-documentation)
 
 ### Managing project dependencies
 We need to create a package.json file in the root directory of our project to manage the project's dependencies.
@@ -242,7 +258,7 @@ test("it gets correct async message: without promise", async () => {
 ```
 
 
-#### DRY principle in Jest Testing
+### DRY principle in Jest Testing
 Don't Repeat Yourself! DRY.
 
 If there is code that should run to `set up` the ground work for a group of related tests ([***test suites***](#test-suites)) e.g. create a database, destroy a database etc, there are methods to do just that within `Jest` from `Jasmine`. The following describes them;
@@ -258,7 +274,7 @@ If there is code that should run to `set up` the ground work for a group of rela
 You can read more about these [***here***](https://facebook.github.io/jest/docs/en/api.html#describename-fn).
 
 
-#### Test Suites
+### Test Suites
 Test suites group related tests together. For instance you may have a group of related functions that you intend to test as a group such that they can share data and test lifecycle methods such as `beforeEach`, `afterAll`(*described above*) together.
 
 Test suites are created using the `describe` method. In the following example, we will assume that we have a class `Burger` which has methods that should be tested as a single suite;
@@ -325,7 +341,7 @@ Jest can be set to monitor file changes and run tests automatically. This can be
 }
 ```
 
-## Jest Documentation
+### Jest Documentation
 These are introductory notes that set up a very strong foundation for testing with `jest`. With these, you have the building blocks for writing tests with `jest`.
 
 You can read more about `jest` from the [***documentation***](https://facebook.github.io/jest/en/).
