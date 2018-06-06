@@ -240,3 +240,72 @@ test("it gets correct async message: without promise", async () => {
     expect(message).toEqual('Hello world!');
 })
 ```
+
+
+#### DRY principle in Jest Testing
+Don't Repeat Yourself! DRY.
+
+If there is code that should run to `set up` the ground work for a group of related tests ([***test suites***](#test-suites)) e.g. create a database, destroy a database etc, there are methods to do just that within `Jest` from `Jasmine`. The following describes them;
+
+`beforeEach` - this one if defined is executed before each test in the test suite runs. It takes a callback function containing the code to be executed as its argument.
+
+`afterEach` - this is run after each test in the test suite has been run.
+
+`beforeAll` - this is run once before any test in the test suite has run
+
+`afterAll` - this is run once after all the tests in the test suite have been run
+
+You can read more about these [***here***](https://facebook.github.io/jest/docs/en/api.html#describename-fn).
+
+
+#### Test Suites
+Test suites group related tests together. For instance you may have a group of related functions that you intend to test as a group such that they can share data and test lifecycle methods such as `beforeEach`, `afterAll`(*described above*) together.
+
+Test suites are created using the `describe` method. In the following example, we will assume that we have a class `Burger` which has methods that should be tested as a single suite;
+
+```js
+// Burger.test.js
+
+const burger = require('./burger');
+
+describe("Burge Test Case", () => {
+    beforeEach (() => {
+        let _burger = new burger.Burger();
+    });
+
+    test("Burger is delicious", () => {
+        let delicious = burger.isDelicious;
+        expect(delicious).toBeTruthy;
+    });
+
+    test("Burger is hot", () => {
+        let notHot = burger.isNotHot;
+        expect(notHot).toBeFasly;
+    });
+});
+```
+
+```js
+// burger.js
+
+class Burger {
+    constructor() {
+        // ...
+    }
+
+    get isDelicious() {
+        // ...
+        return true;
+    };
+
+    get isNotHot() {
+        // ...
+        return false;
+    };
+}
+const burger = {
+    Burger: Burger,
+};
+
+module.exports = burger;
+```
