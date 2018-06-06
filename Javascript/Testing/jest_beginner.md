@@ -333,6 +333,7 @@ Jest can be set to monitor file changes and run tests automatically. This can be
 
 
 ```json
+/*  package.json */
 {
     "scripts": {
       "test": "jest",
