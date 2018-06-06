@@ -22,7 +22,7 @@ Link to git repo: [here](https://github.com/johnmutuma5/Testing.git)
     - [Testing Asynchronouns functions with `async`/`await`](#testing-asynchronouns-functions-with-asyncawait`)
 - [DRY principle in Jest Testing](#dry-principle-in-Jest-testing)
 - [Test Suites](#test-suites)
-- [Running Jest automatically with File Edits](#running-jest-automatically-with file-edits)
+- [Running Jest automatically with File Edits](#running-jest-automatically-with-file-edits)
 - [Jest Documentation](#jest-documentation)
 
 ### Managing project dependencies
