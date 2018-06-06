@@ -310,3 +310,22 @@ const burger = {
 
 module.exports = burger;
 ```
+
+
+### Running Jest automatically with File Edits
+Jest can be set to monitor file changes and run tests automatically. This can be done inside the `package.json` in the `scripts` section by adding a script with the value `jest --watchAll`. You can name the script anything you will remember but for this one we're going to call it `testWatch`.
+
+
+```json
+{
+    "scripts": {
+      "test": "jest",
+      "testWatch": "jest --watchAll"
+    },
+}
+```
+
+## Jest Documentation
+These are introductory notes that set up a very strong foundation for testing with `jest`. With these, you have the building blocks for writing tests with `jest`.
+
+You can read more about `jest` from the [***documentation***](https://facebook.github.io/jest/en/).
