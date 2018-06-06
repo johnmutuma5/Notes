@@ -19,10 +19,10 @@ Link to git repo: [here](https://github.com/johnmutuma5/Testing.git)
     - [Regex Matchers](#regex-matchers)
 - [Asynchronouns Testing](#asynchronouns-testing)
     - [Testing Asynchronouns functions that return a Promise](#testing-asynchronouns-functions-that-return-a-promise)
-    - [Testing Asynchronouns functions with `async`/`await`](#testing-asynchronouns-functions-with-asyncawait`)
-- [DRY principle in Jest Testing](#dry-principle-in-Jest-testing)
+    - [Testing Asynchronouns functions with `async`/`await`](#testing-asynchronouns-functions-with-async\/await`)
+- [DRY principle in Jest Testing](#dry-principle-in-jest-testing)
 - [Test Suites](#test-suites)
-- [Running Jest automatically with File Edits](#running-jest-automatically-with file-edits)
+- [Running Jest automatically with File Edits](#running-jest-automatically-with-file-edits)
 - [Jest Documentation](#jest-documentation)
 
 ### Managing project dependencies
