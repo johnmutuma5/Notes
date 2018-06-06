@@ -293,12 +293,12 @@ describe("Burge Test Case", () => {
 
     test("Burger is delicious", () => {
         let delicious = burger.isDelicious;
-        expect(delicious).toBeTruthy;
+        expect(delicious).toBeTruthy();
     });
 
     test("Burger is hot", () => {
         let notHot = burger.isNotHot;
-        expect(notHot).toBeFasly;
+        expect(notHot).toBeFasly();
     });
 });
 ```
