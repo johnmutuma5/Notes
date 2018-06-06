@@ -268,9 +268,11 @@ Test suites are created using the `describe` method. In the following example, w
 
 const burger = require('./burger');
 
+
 describe("Burge Test Case", () => {
     beforeEach (() => {
         let _burger = new burger.Burger();
+
     });
 
     test("Burger is delicious", () => {
@@ -287,7 +289,6 @@ describe("Burge Test Case", () => {
 
 ```js
 // burger.js
-
 class Burger {
     constructor() {
         // ...
