@@ -15,7 +15,7 @@ The following notes have been taken from [this course](https://app.pluralsight.c
 The EventEmitter class is a major building block of the `Node.js` Non-blocking I/O model. We can extend this class to inherit the event handling functionalities including `Subscriptions` and `Publishing`.
 
 ## Readable and writable streams
-Streams are instances of (and extensions to) with an agreed upon interface.
+Streams are instances of (and extensions to) `EventEmitter` class with an agreed upon interface.
 It provides a unified abstraction of managing data flow including:
 - Network traffic (http requests and responses, tcp sockets)
 - File I/O
@@ -33,7 +33,7 @@ Main encapsulations of `Streams`:
 | `ReadableStream`                   | `WritableStream`                                 
 |----------------------------------- |--------------------------------------------------
 | readable [`boolean`]               | writable[`boolean`]
-| events['`data`', '`end`', '`err`'] | events['`drain`', '`error`', '`close`', '`pipe`']
+| events['`data`', '`end`', '`error`'] | events['`drain`', '`error`', '`close`', '`pipe`']
 | pause()                            | write()          
 | resume()                           | end()          
 | destroy()                          | destroy()          
@@ -41,3 +41,52 @@ Main encapsulations of `Streams`:
 
 
 Read more about streams [here](https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93 "Node.js Streams").
+
+### Piping between `Streams`
+Piping data between `Streams` is built with the concept of the `Unix` `pipe`. Data from a `ReadableStream` is `piped` into a `WritableStream`.
+
+## Accessing the Local System
+### The `process` object
+It provides ways for a `Node.js` application to manage its own process as well as other processes on the system. It is available by default in a `Node` application; it does not even need `require`.
+
+The process object contains:
+- a collection of Streams
+    - process.stdin - Readable
+    - process.stdout - Writable
+    - process.stderr - Writable
+- attributes of the current process
+    - process.env - set of environment variables
+    - process.argv - command line arguments
+    - process.pid - process id
+    - process.title
+    - process.upTime()
+    - process.memoryUsage()
+    - process.cwd()
+    - etc
+- process-related actions
+    - process.abort()
+    - process.chdir()
+    - process.kill() - requires process id as a parameter
+    - etc
+- it is an instance of the `EventEmitter` class
+    - events - '`exit`', '`uncaughtException`'
+    - `POSIX` signal events ('`SIGINT`', etc.)
+
+## Interacting with the File System
+The file system is a wrapper around `POSIX` functions. Some of the functions include `rename`, `truncate`, `chown`, `chmod`, `write`, `read`, `open`, `readFile` etc.
+
+It has Stream oriented methods:
+- `fs.createReadStream`
+- `fs.createWriteStream`
+
+Watch a file or directory for changes:
+- `fs.watch()` - returns an `fs.FSWatcher` event emitter
+- `change` event - type of change and the filename that changed
+- `error` event - emitted when an error occurs
+
+### Buffers
+When reading files, `Node` usually returns binary data in a `buffer`. JavaScript has difficulties dealing with binary data. The `Buffer` class provides a raw memory allocation for dealing with binary data directly.
+
+Buffers can be converted to and from `strings` with encoding e.g. `ascii`, `utf8`, etc.
+
+## Interacting with the web
