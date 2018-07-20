@@ -90,3 +90,82 @@ When reading files, `Node` usually returns binary data in a `buffer`. JavaScript
 Buffers can be converted to and from `strings` with encoding e.g. `ascii`, `utf8`, etc.
 
 ## Interacting with the web
+With `Node`, interacting with the web can easily be achieved by making use of the `http` module.
+
+```js
+const http = require('http');
+
+const req = http.request(<options>, <callback>);
+req.end();
+```
+
+`options` can be a `string` representing the `url` or an object with options what can have this shape:
+
+```js
+const options = {
+    host: 'https://example.com',
+    port: 80,
+    path: '/',
+    method: 'GET'
+}
+```
+
+The callback is a function that takes the `response` object as a sole argument. The `response` object is a `ReadableStream`, hence it can be `piped`.
+
+***NB:*** `http` module does not follow `redirects`. There is another `module` called `requests` that does. With `http` you'd have to deal with the redirects in your code.
+
+## Building a web server in Node.js
+This is also done with the use of the `http` module.
+
+e.g.
+
+```js
+const http = require('http');
+const fs = require('fs');
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+
+    // lets read from a local file
+    const read = fs.createReadStream(`${__dirname}/file.txt`);
+    // lets pipe this to the res WritableStream
+    read.pipe(res);
+})
+```
+
+## Real time interactions with socket.IO
+Websockets make possible low latency bidirectional exchange of data between client and server. This is most appropriate for applications that require realtime communication. Support across browsers is not at 100% yet.
+
+`socket.IO` is a module that provides an abstraction on top of the implementation detail of `Websockets` and fallback mechanisms to other alternatives such as `long polling`, `http streaming` in cases where `Websockets` are not viable either due to browser or firewall limitations.
+
+`socket.IO` also provides a consistent interface for implementation both on the client and on the server i.e. if the server is written in `Node.js`.
+
+Developing a server in other backend languages like `C++`, `Python`, `Java`, `Erlang` etc is possible but it will lack the code symmetry achieved by using `Node.js` with `socket.IO`.
+
+
+## Scaling your application
+A common criticism of `Node.js` applications is that they don't handle CPU intensive tasks well. This is because `Node.js` applications are single threaded and performing CPU intensive computations will block the event loop and prevent any other tasks from being done. A strategy for dealing with this issue is by using `child processes`. A CPU intensive task can be deffered to a child process while the main process continues to handle events.
+
+`Node.js` has four ways of launching child processes all of which are part of the `child_process` module;
+
+- `spawn(command, [args], [options])`
+    - launches a new process with `command` and `args`
+    - returns a `ChildProcess` object which is
+        - an `EventEmitter` and emits `exit` and `close` events
+        - has streams for `stdin` and `stdout` that can be `piped` to/from
+
+- `exec(command, [options], callback)`
+    - runs 'command' string in a shell
+    - callback is invoked on process completions with `error`, `stderr`, `stdout`
+    - you can even `pipe` between `Unix` commands with a single invocation of `exec`. e.g. `piping` the result of the `ls` command to `grep`
+
+- `execFile(file, [arg[, options]], callback)`
+    - similar to `exec` but commands in `file` are run directly rather than in a subshell
+
+- `fork(modulePath, [args[, options]])`
+    - a special version of `spawn` especially for creating `node` processes
+    - adds a `send` function and a `message` event to child processes
+
+
+## Further reading
+- Scaling with `Node` cluster module
