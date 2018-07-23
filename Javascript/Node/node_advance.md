@@ -9,7 +9,7 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
     - [The process object](#the-process-object)
     - [The Buffer object](#the-buffer-object)
         - [Using the StringDecoder](#using-the-stringdecoder)
-- [Modularity - How `require` works](#modularity-how-require-works)
+- [Modularity - How `require` works](#modularity---how-require-works)
     - [The Circular Modular Dependency](#the-circular-modular-dependency)
     - [JSON and C++ Addons](#json-and-c-addons)
     - [Wrapping and caching](#wrapping-and-caching)
