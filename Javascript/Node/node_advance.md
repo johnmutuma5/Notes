@@ -279,13 +279,18 @@ readFileLines('./file.txt')
     .then(lines => console.log(lines)); // this will work
 
 readFileLines('./file.txt', (err, lines) => {
-    if(err) throw err;
+    if(err) console.error(err);
     console.log(lines);
 }); // this will also work
 
 async function showLines () {
-    const lines = await readFileLines('./file.txt');
-    console.log(lines);
+    try{
+        const lines = await readFileLines('./file.txt');
+        console.log(lines);
+    }
+    catch(err){
+        console.error(err)
+    }
 }
 showLines(); // this will also work
 ```
