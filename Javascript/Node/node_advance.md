@@ -24,6 +24,7 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
         - [How callbacks actually work](#how-callbacks-actually-work)
 - [Node's Event-driven Architecture](#nodes-event-driven-architecture)
     - [Callbacks, Promises and Async/Await](#callbacks-promises-and-asyncawait)
+    - [Some tips with EventEmitters](#some-tips-with-eventemitters)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -294,3 +295,8 @@ async function showLines () {
 }
 showLines(); // this will also work
 ```
+
+### Some tips with EventEmitters
+- `process.once('uncaughtException', <callback>)` - to handle several uncaught error at process exit. Rememeber to `process.exit(1)` anyway
+- `<emmiter>.prependListener('event', <callback>)` - to register a listener that will be called first and not in order of registration
+- `<emitter>.removeListener('event', <callback>)` - remove a listener
