@@ -251,3 +251,40 @@ When a script is run, function calls are pushed into the call stack and popped L
 ***NB:*** **Further reading `setImmediate` and `process.nextTick`**
 
 ## Node's Event-driven Architecture
+### Callbacks, Promises and Async/Await
+`node.js` uses these in its event-driven architecture. The current trend is to have your asynchronous operations support all the interfaces. This can be achieved by having your asynchronous operation return a `Promise` and still take an optional callback function i.e. by having a default callback.
+
+```js
+const fs = require('fs');
+
+function readFileLines(path, callback=() => null){
+    const prom = new Promise((resolve, reject) => {
+        fs.readFile(path, (err, data) => {
+            if(err) {
+                reject(err);
+                return callback(err)
+            }
+
+            const lines = data.toString().trim().split('\n');
+            resolve(lines);
+            callbacks(null, lines);
+        })
+    });
+
+    return prom;
+}
+
+readFileLines('./file.txt')
+    .then(lines => console.log(lines)); // this will work
+
+readFileLines('./file.txt', (err, lines) => {
+    if(err) throw err;
+    console.log(lines);
+}); // this will also work
+
+async function showLines () {
+    const lines = await readFileLines('./file.txt');
+    console.log(lines);
+}
+showLines(); // this will also work
+```

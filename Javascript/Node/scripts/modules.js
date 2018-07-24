@@ -9,7 +9,8 @@ const addon = require('addon');
 console.log('require cache', require.cache)
 
 const prom = new Promise((res, rej) => {
-    res('hello promise')
+    res('hello promise');
+    console.log('after resolve')
 });
 
 
