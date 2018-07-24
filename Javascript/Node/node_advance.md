@@ -180,3 +180,27 @@ To have `C/C++` addons, we need to:
 
 
 ### Wrapping and caching
+There are at least two different ways to export from a module;
+- using `module.exports` - e.g. `module.exports.id = 10` or `module.exports = {id: 10}`
+- using `exports` - e.g. `exports.id = 10`. For this way, cannot use `exports = {id: 10}`. Why??
+
+Answering the 'Why'!
+Before compiling a module, `node` wraps the module's code in a function. Run `require('module').wrapper` to see. This is how `node` keeps the arguments to that function scoped to every module. `exports` is a object whose reference is the `module.exports` object. By assigning it to a new object, it ceases to reference to `module.exports`.
+
+#### Checking if running as a module or a script
+It is also possible to use the `require` and `module` context arguments to check it the script file is being evaluated as the main script or being required as a module.
+
+```js
+const name = 'Laz';
+const myName (name) => {
+    console.log(`My name is ${name}`);
+}
+
+if (require.main == module) {
+    myName(name);
+} else {
+    exports.name = name
+}
+```
+
+This is useful when calling functions that should only be called if the script is running as the main script.
