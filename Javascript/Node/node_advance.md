@@ -13,6 +13,16 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
     - [The Circular Modular Dependency](#the-circular-modular-dependency)
     - [JSON and C++ Addons](#json-and-c-addons)
     - [Wrapping and caching](#wrapping-and-caching)
+        - [Wrapping](#wrapping)
+        - [Is script main or being required?](#checking-if-running-as-a-module-or-a-script)
+        - [Caching](#caching)
+    - [Know your npm](#know-your-npm)
+- [Concurrency Model and Event Loop](#concurrency-model-and-event-loop)
+    - [What is I/O](#what-is-io)
+    - [The Event Loop](#the-event-loop)
+        - [The call stack](#the-call-stack)
+        - [How callbacks actually work](#how-callbacks-actually-work)
+- [Node's Event-driven Architecture](#nodes-event-driven-architecture)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -180,6 +190,7 @@ To have `C/C++` addons, we need to:
 
 
 ### Wrapping and caching
+#### Wrapping
 There are at least two different ways to export from a module;
 - using `module.exports` - e.g. `module.exports.id = 10` or `module.exports = {id: 10}`
 - using `exports` - e.g. `exports.id = 10`. For this way, cannot use `exports = {id: 10}`. Why??
@@ -204,3 +215,39 @@ if (require.main == module) {
 ```
 
 This is useful when calling functions that should only be called if the script is running as the main script.
+
+#### Caching
+Modules that have been resolved and loaded before are stored in `require.cache`.
+
+### Know your npm
+You can find some in depth notes about npm [here](https://github.com/johnmutuma5/Notes/blob/develop/NPM/npm.md "NPM Playbook").
+
+
+## Concurrency Model and Event Loop
+You can compare this with Python's `Twisted`.
+
+Slow I/O's are handled with events and callbacks so that they do not block the main single-threaded execution runtime.
+
+### What is I/O
+It is short for Input/Output.
+
+I/O labels external communication between a process and resources that are external to that process including Network, memory, disk and even other processes. In `node`, I/O is commonly used to reference accesses disk and network resources. This is the most time-expensive part of all operations. The most common alternative of handling slow I/O is using `threads`. This approach can however get complicated when `threads` start sharing resources i.e. data races. `Node` uses a single-threaded approach with the Event Loop being the main building block.
+
+### The Event Loop
+It is the entity that handles external events and converts them into callback invocations. It is the loop that picks events from the event queue and pushes their callbacks to the call stack; it works between the event queue and the call stack.
+
+#### The call stack
+It is a simple Last-in First-out data structure i.e. a stack.
+
+#### How callbacks actually work
+There are four main collaborators:
+- The call stack
+- The Node API
+- The event queue
+- The event loop
+
+When a script is run, function calls are pushed into the call stack and popped LIFO. If any of the calls interacts with the Node API such as `timers` and network calls, they are transferred from the call stack into the Node API for monitoring. Once timers have elapsed or network call promises have resolved or rejected, Node API pushes their callback functions independently into the event queue which is a FIFO data structure. The event loop keeps monitoring the call stack and once it is empty, the callbacks in the event queue are popped one after the other into the call stack for execution.
+
+***NB:*** **Further reading `setImmediate` and `process.nextTick`**
+
+## Node's Event-driven Architecture
