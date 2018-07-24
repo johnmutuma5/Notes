@@ -23,6 +23,7 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
         - [The call stack](#the-call-stack)
         - [How callbacks actually work](#how-callbacks-actually-work)
 - [Node's Event-driven Architecture](#nodes-event-driven-architecture)
+    - [Callbacks, Promises and Async/Await](#callbacks-promises-and-asyncawait)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
