@@ -10,3 +10,9 @@ const User = connection.define('users', {
 });
 
 connection.sync()
+    .then(function() {
+        User.create({
+            name: 'Laz',
+            home_area: 'Kiambu Rd'
+        });
+    });
