@@ -4,7 +4,7 @@ import env from '../config/env';
 
 
 const connection = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
-  dialect: 'postgres',
+  dialect: env.DB_DIALECT,
 });
 
 // this object shall contain the connection and all application models

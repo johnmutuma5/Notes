@@ -14,6 +14,8 @@ These notes have been taken from the following tutorial on youtube.
     - [Custom `Primary Key`](#custom-primary-Key)
 - [Validation Rules](#validation-rules)
 - [Hooks](#hooks)
+- [CRUD with sequelize](#crud-with-sequelize)
+    - [Creating ](#creating)
 
 
 ## Getting started
@@ -345,3 +347,6 @@ connection.sync();
 ```
 
 A very good instance of lifecycle hooks use case is in password hashing. i.e. `afterValidate`.
+
+## CRUD with sequelize
+### Creating

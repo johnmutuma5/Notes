@@ -4,7 +4,10 @@ import { checkEnv } from './utils';
 
 // console.log({...dbConfig})
 const env = {
-  ...dbConfig
+  DB_NAME: dbConfig['database'],
+  DB_USER: dbConfig['username'],
+  DB_PASSWORD: dbConfig['password'],
+  DB_DIALECT: dbConfig['dialect']
 }
 
 export default checkEnv(env);
