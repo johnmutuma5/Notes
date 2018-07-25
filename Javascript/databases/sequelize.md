@@ -13,6 +13,7 @@ These notes have been taken from the following tutorial on youtube.
     - [Passing options to sync](#passing-options-to-sync)
     - [Custom `Primary Key`](#custom-primary-Key)
 - [Validation Rules](#validation-rules)
+- [Hooks](#hooks)
 
 
 ## Getting started
@@ -171,7 +172,7 @@ connection.sync();
 
 ```
 
-There is a variety of other options you can pass e.g. `freezeTableName` to prevent `sequelize` from auto-pluralizing the table names.
+There is a variety of other options you can pass e.g. `freezeTableName` to prevent `sequelize` from auto-pluralizing the table names. We can also declare [hooks](#hooks) here.
 
 ### Passing options to sync
 The `sync` method can also take an object of options. For instance, when creating tables, `sync` only creates tables if they do not exist. We can override this by passing an option to `sync` as follows;
@@ -239,3 +240,108 @@ const User = connection.define('users', {
 
 connection.sync();
 ```
+
+Besides providing values for validation, we can also use an object to specify more options e.g. a custom message.
+
+```js
+// app.js
+// ...
+
+    email: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+        validation: {
+            contains: {
+                args: 'andela',
+                msg: 'The email must include "andela"'
+            }
+        }
+    }
+// ...
+
+connection.sync();
+```
+
+We are also able to define custom validation rules with a function;
+
+```js
+// app.js
+// ...
+
+    email: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+        validation: {
+            includesAndela: function(email) {
+                if(!email.includes('andela'))
+                    throw new Error('The email must include "andela"')
+            }
+        }
+    }
+// ...
+
+connection.sync();
+```
+
+
+## Hooks
+These are important lifecycle hooks that are specified for the table in the `define` method's third argument, which is an object. There are a number of hooks to our disposal as can be seen from the [documentation](http://docs.sequelizejs.com/manual/tutorial/hooks.html) Some of these include:
+
+- `beforeValidate`
+- `beforeCreate`
+
+and some more.
+
+```js
+// app.js
+// ...
+
+// create a table users
+const User = connection.define('users', {
+        name: {type: Sequelize.STRING},
+        home_area: {type: Sequelize.STRING},
+    }, {
+        timestamp: false,
+        hooks: {
+            beforeCreate: function() {
+                console.log('before create');
+            }
+        }
+    }
+);
+
+connection.sync();
+```
+
+An alternative way of setting up `hooks` is on the model as follows;
+
+```js
+// app.js
+// ...
+
+// create a table users
+const User = connection.define('users', {
+        name: {type: Sequelize.STRING},
+        home_area: {type: Sequelize.STRING},
+    }, {
+        timestamp: false
+    }
+);
+
+// method 2
+User.hooks('beforeValidate', function(user, options){
+    console.log(`validating ${user.username}`);
+});
+
+// method 3
+
+User.beforeCreate("<HookName::optional", function(user, options) {
+    console.log(`creating ${user.username}`);
+});
+
+connection.sync();
+```
+
+A very good instance of lifecycle hooks use case is in password hashing. i.e. `afterValidate`.
