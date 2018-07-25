@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
 
 const connection = new Sequelize('sequelize_test', 'postgres', '', {
     dialect: 'postgres'
