@@ -25,6 +25,13 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
 - [Node's Event-driven Architecture](#nodes-event-driven-architecture)
     - [Callbacks, Promises and Async/Await](#callbacks-promises-and-asyncawait)
     - [Some tips with EventEmitters](#some-tips-with-eventemitters)
+- [Node for Networking](#node-for-networking)
+  - [Working with multiple sockets](#working-with-multiple-sockets)
+  - [The DNS Module](#the-dns-module)
+  - [UDP datagram sockets](#udp-datagram-sockets)
+- [Node for the web](#node-for-the-web)
+- [Node's Common Built-in Libraries](#nodes-common-built-in-libraries)
+- [Working with Streams](#working-with-streams)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -300,3 +307,211 @@ showLines(); // this will also work
 - `process.once('uncaughtException', <callback>)` - to handle several uncaught error at process exit. Rememeber to `process.exit(1)` anyway
 - `<emmiter>.prependListener('event', <callback>)` - to register a listener that will be called first and not in order of registration
 - `<emitter>.removeListener('event', <callback>)` - remove a listener
+
+## Node for Networking
+We can use the `net` module to create as `network socket` server. The server is an `EventEmiiter` object. On connection, it creates a socket which is a duplex stream i.e. we can read and write into it concurrently.
+
+```js
+const net = require('net');
+
+const server = net.createServer();
+server.on('connection', socket => {
+  console.log('hello');
+  socket.write('How are you?\n');
+  socket.on('data', data => {
+    console.log('data is: ', data)
+  });
+  return socket.on('end', console.log('Disconnected'));
+});
+
+server.listen(8000, () => console.log('Listenning for connections'));
+
+```
+
+By default, `data` in the the sockets is a `Buffer` object without encoding. This is why data is logged is a `Buffer`. We can use `socket.setEncoding('utf8')` to set global encoding for the socket.
+
+### Working with multiple sockets
+Each connected client gets a seperate socket. To write data to every socket, the server needs to keep and loop through a registry of connected sockets and write data in every socket.
+
+```js
+const net = require('net');
+
+const server = net.createServer();
+
+const activeSockets = {};
+let socketId = 0;
+
+server.on('connection', socket => {
+  socket.id = socketId++;
+  activeSockets[socket.id] = socket;
+  socket.write('Hello, welcome!\n');
+
+  socket.on('data', data => {
+    Object.entries(activeSockets)
+      .forEach(([id, soc]) => {
+        return soc.write(`${socket.id}: ${data}`);
+      })
+  })
+});
+
+server.listen(8000, () => console.log('Listenning for connections'));
+```
+
+If one of the clients disconnects, we need to remove the client from the active sockets otherwise the server will crash for trying to write to a terminated socket.
+
+```js
+const net = require('net');
+
+const server = net.createServer();
+
+const activeSockets = {};
+let socketId = 0;
+
+const server = net.createServer();
+server.on('connection', socket => {
+  socket.id = socketId++;
+  activeSockets[socket.id] = socket;
+  socket.write('Hello, welcome!\n');
+
+  socket.on('end', () => {
+    return delete activeSockets[socket.id];
+  })
+});
+```
+
+
+### The DNS Module
+The Domain Name System is a hierarchical decentralized naming system for computers, services, or other resources connected to the Internet or a private network. The `dns` module in Node is important for translating between names and addresses.
+
+For instance, it can be used as follows;
+
+```js
+const dns = require('dns');
+
+dns.lookup('pluralsight.com', (err, address) => console.log(adddress)); // ip address
+dns.resolve4('pluralsight.com', (err, address) => console.log(address)); // IPV4 address
+dns.reverse('192.65.56.204', (err, hostnames) => console.log(hostnames)); // an array of hostnames
+```
+
+### UDP datagram sockets
+Further learning
+
+## Node for the web
+TODO - to write later
+
+## Node's Common Built-in Libraries
+The best way to explore node builtin modules is to check the [documentation](https://nodejs.org/docs/latest-v9.x/api/, "Node.js documentation")
+### Working with the operating system
+We can work with the `os` module to retrieve os-specific information including the user info, cpus, memory information etc.
+### The file system
+The `fs` module provides an interface for working with the File I/O.
+Items to explore:
+- `fs.watch`
+- `fs.truncate`
+
+### Console and Utilites
+- `console.dir`
+- `console.time`, `console.timeEnd`
+- `console.Console`
+- `utils.inspect`
+- `utils.depracate`
+
+etc.
+
+
+## Working with Streams
+Streams are collections of data that may not be available all at once and do not have to fit in memory.
+There are four fundamental types of streams:
+- Readable
+- Writable
+- Duplex
+- Transform
+
+All streams are instances of `EventEmiiter`.
+We can consume streams using the `pipe` from readable to writable.
+
+`src.pipe(dst)`;
+
+Implementing streams requires the `stream` module.
+Consuming streams requries the use of `pipe` or `events`.
+
+`Readable` streams have two main options in the way consume them: they can be either flowing or paused. All `readable` streams start in the paused mode. In pause mode, we use `stream.read` to read data, while in flowing mode, the data is continously flowing and we can use `pipe` or events to consume it.
+
+### Implementing a Writable Stream
+We need the `Writable` constructor function from `stream` module, and instantiate it with an object of options amongst which should include a `write` function.
+
+```js
+const { Writable } = require('stream');
+
+const writableStream = new Writable({
+  write(chunk, encoding, callback) {
+    process.stdout.write(chunk.toString);
+    callback();
+  }
+});
+
+//test
+process.stdin.pipe(writableStream);
+```
+
+
+### Implementing a Readable Stream
+We need the `Readable` constructor function from `stream` module, and instantiate it with an object of options amongst which should include a `read` function which pushes data to the stream for reading.
+
+```js
+const { Readable } = require('stream');
+
+const readStream = new Readable({
+  read(size) {
+    // to indicate when there is no more stream
+    if(this.currentChar > 90) return this.push(null);
+    this.push(String.fromCharCode(this.currentChar++));
+  }
+});
+
+readStream.currentChar = 65;
+
+//test
+readStream.pipe(process.stdout);
+```
+
+### Implementing Duplex Streams
+We need the `Duplex` constructor function from `stream` module, and instantiate it with an object of options amongst which should include a `read` function which pushes data to the stream for reading and a `write` function which we use to write data to a destination.
+
+```js
+const { Writable } = require('stream');
+
+const readWriteStream = new Writable({
+  write(chunk, encoding, callback) {
+    process.stdout.write(chunk.toString);
+    callback();
+  }
+
+  read(size) {
+    // to indicate when there is no more stream
+    if(this.currentChar > 90) return this.push(null);
+    this.push(String.fromCharCode(this.currentChar++));
+  }
+});
+readWriteStream.currentChar = 65;
+//test
+process.stdin.pipe(readWriteStream).pipe(process.stdout);
+```
+
+### Implementing a Transform Stream
+This is a special kind of a Duplex stream but it is useful when you want access to the data that is coming in through the `writable` channel of the stream.
+
+```js
+const { Transform } = require('stream');
+
+const toUpper = new Transform({
+  transform(chunk, encoding, callback) {
+    this.push(chunk.toString().toUpperCase());
+    callback();
+  }
+})
+
+process.stdin.pipe(toUpper).pipe(process.stdout);
+```
+
+*** Read more about the `callback`***
