@@ -32,6 +32,9 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
 - [Node for the web](#node-for-the-web)
 - [Node's Common Built-in Libraries](#nodes-common-built-in-libraries)
 - [Working with Streams](#working-with-streams)
+- [Clusters and Child Processes](#clusters-and-child-processes)
+- [Scalability strategies](#scalability-strategies)
+- [Child Process, Events and Standard I/O](#child-process-events-and-standard-io)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -514,4 +517,17 @@ const toUpper = new Transform({
 process.stdin.pipe(toUpper).pipe(process.stdout);
 ```
 
-*** Read more about the `callback`***
+***NB:*** By passing the transformed `chunk` as a second argument to `callback`, it is automatically pushed to the Buffer. i.e. `callback(null, transformedChunk)`. This is unique to the transform constructor.
+
+***Further Reading:*** `crypto` and `zlib` transforms.
+
+
+## Clusters and Child Processes
+Using multiple processes is the only way to scale a `Node.js` application. `Node.js` is designed for building distributed applications with many 'nodes'. Cases for scaling applications include workload, avaibalability and fault-tolerance.
+
+### Scalability strategies
+- _Cloning:_ cloning the application multiple times and have each instance handle part of the workload. This does not cost a lot in terms of development time and it is highly effective
+- _Decomposing:_ an application can be decomposed based on functionalities and services. This means having multiple different applications with different codebases and sometimes dedicated databases and UIs. This is commonly referred to as `micro services`. It is important to enforce loose coupling and high cohesion between services.
+- _Splitting:_ this involves splitting the application into multiple instances where each instance is responsible for only a portion of the application's data. It is often referred to as `horizontal partitioning`, or `sharding` in databases
+
+### Child Process, Events and Standard I/O
