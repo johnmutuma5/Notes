@@ -33,8 +33,10 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
 - [Node's Common Built-in Libraries](#nodes-common-built-in-libraries)
 - [Working with Streams](#working-with-streams)
 - [Clusters and Child Processes](#clusters-and-child-processes)
-- [Scalability strategies](#scalability-strategies)
-- [Child Process, Events and Standard I/O](#child-process-events-and-standard-io)
+  - [Scalability strategies](#scalability-strategies)
+  - [Child Process, Events and Standard I/O](#child-process-events-and-standard-io)
+      - [Spawn](#spawn)
+      - [Exec](#exec)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -531,3 +533,50 @@ Using multiple processes is the only way to scale a `Node.js` application. `Node
 - _Splitting:_ this involves splitting the application into multiple instances where each instance is responsible for only a portion of the application's data. It is often referred to as `horizontal partitioning`, or `sharding` in databases
 
 ### Child Process, Events and Standard I/O
+There are four different ways in which you can create child processes in `node.js`:
+- _spawn_
+- _fork_
+- _exec_
+- _execFile_
+
+#### Spawn
+The spawn method launches a command to a new process and we can use it to pass arguments to that command.
+
+We can spawn a command to a child process as follows;
+
+```js
+const { spawn } = require('child-process');
+
+const child = spawn('ls');
+
+child.stdout.on('data', (data) => {
+  console.log(data.toString());
+});
+```
+
+We can pass arguments to the command as a second array argument to `spawn`.
+
+```js
+const { spawn } = require('child-process');
+
+const child = spawn('ls', ['-a', '.']);
+
+child.stdout.on('data', (data) => {
+  console.log(data.toString());
+});
+```
+
+We can catch errors in child process by listenning to the `data` event of the child's stdout;
+
+```js
+const { spawn } = require('child-process');
+
+const child = spawn('ls', ['-a', '.']);
+
+child.stderr.on('data', (data) => {
+  console.error(data.toString());
+});
+```
+
+
+#### Exec
