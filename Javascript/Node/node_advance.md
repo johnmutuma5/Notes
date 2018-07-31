@@ -37,6 +37,8 @@ These notes have been taken from [this course](https://app.pluralsight.com/libra
   - [Child Process, Events and Standard I/O](#child-process-events-and-standard-io)
       - [Spawn](#spawn)
       - [Exec](#exec)
+        - [The shell syntax](#the-shell-syntax)
+      - [Fork](#fork)
 
 ## Node's Architecture: v8 and libuv
 The two most important players in `node` architecture are chrome's `v8` engine and `libuv`.
@@ -545,7 +547,7 @@ The spawn method launches a command to a new process and we can use it to pass a
 We can spawn a command to a child process as follows;
 
 ```js
-const { spawn } = require('child-process');
+const { spawn } = require('child_process');
 
 const child = spawn('ls');
 
@@ -557,7 +559,7 @@ child.stdout.on('data', (data) => {
 We can pass arguments to the command as a second array argument to `spawn`.
 
 ```js
-const { spawn } = require('child-process');
+const { spawn } = require('child_process');
 
 const child = spawn('ls', ['-a', '.']);
 
@@ -566,10 +568,10 @@ child.stdout.on('data', (data) => {
 });
 ```
 
-We can catch errors in child process by listenning to the `data` event of the child's stdout;
+We can catch errors in child process by listenning to the `data` event of the child's `stderr`;
 
 ```js
-const { spawn } = require('child-process');
+const { spawn } = require('child_process');
 
 const child = spawn('ls', ['-a', '.']);
 
@@ -578,5 +580,76 @@ child.stderr.on('data', (data) => {
 });
 ```
 
+Inside a node file, we can run another node process like:
+
+```js
+const { spawn } = require('child_process');
+
+const child = spawn(process.execPath, [path.join(__dirname, 'child.js')]);
+
+child.stderr.on('data', (data) => {
+  console.error(data.toString());
+});
+```
 
 #### Exec
+`exec` executes a command as it would be typed in the command line i.e. `Shell syntax`;
+The `spawn` method does not create a shell to execute the command unlike the `exec` method, making it slightly more efficient.
+
+```js
+const { exec } = require('child_process');
+
+exec('find . -type f | wc -l', (err, stdout, stderr) => {
+  if (err){
+    return console.log(`exec error: ${err}`);
+  }
+
+  console.log(`Number of files: ${stdout}`);
+});
+
+```
+
+One key difference between `exec` and `spawn` is that the former buffers all the data into the `stdout` argument above before it outputs. If your child process will be dealing with large files, `exec` would not be the best choice.
+
+**NB:** Child process can inherit the `stdio` of the parent process;
+```js
+const { spawn } = require('child_process');
+
+const child = spawn('ls', ['-a', '.'], {
+  stdio: 'inherit'
+});
+```
+
+This will output the results of the command to `process.stdin` right away.
+
+##### The shell syntax
+As noted [earlier](#exec), `exec` uses the `shell syntax` to execute a command as it would be typed in the command line with all the piping and redirecting etc. This is advantageous, but the fact that `exec` buffers all the output first before it's ready for processing is discouraging for dealing with large files. However, we can indicate to spawn in the options object to use a `shell syntax` and this way we'd take advantage of both worlds while still not having to buffer output like how `exec` would. We'd do this with the `shell` option;
+
+```js
+const { spawn } = require('child_process');
+
+const child = spawn('ls -a .', {
+  shell: true
+});
+```
+
+There is a variety of options that we can pass into the child process including;
+- `cwd` - we can use this to set the current working directory in which the shell script should be executed
+- `env` - this sets the environment variables that will be available to the child process. The default is `process.env`
+- `detached` - this if set `true` makes the child process run independent of the parent process
+
+The child process has the `unref` method which allows the parent process to exit independent of the child. This is especially useful if the child process has a long running task. To keep it running in the background, the child's `stdio` also has to be independent of the parent process;
+
+```js
+const { spawn } = require('child-process');
+
+const child = spawn('ls -a .', {
+  shell: true,
+  stdio: 'ignore'
+});
+
+child.unref();
+```
+
+#### Fork
+The fork function is a variation of the `spawn` function for spawning node processes.
