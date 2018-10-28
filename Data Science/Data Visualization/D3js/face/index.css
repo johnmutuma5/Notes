@@ -1,0 +1,12 @@
+body {
+  margin: 0;
+}
+
+.eye-brows {
+  transition: transform .2s ease-out;
+  fill: black;
+}
+
+.face-elements:hover .eye-brows {
+  transform: translate(0, -50px);
+}

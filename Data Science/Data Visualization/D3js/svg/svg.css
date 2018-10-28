@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+}
+
+.lines {
+   stroke-width: 25;
+   stroke: black;
+   stroke-linejoin: round;
+   stroke-linecap: butt; /* square, butt or round */
+   fill: none;
+}
