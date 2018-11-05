@@ -109,6 +109,7 @@ const height = 960;
 const yScale = d3.scaleBand()
   .domain(data.map(data => data.country))
   .range([0, height])
+  .padding(.2) // adds separation between bands
 
 ```
 
@@ -118,3 +119,61 @@ To create room for axes and chart titles, d3 has some margin convention;
 - We define the top, right, bottom and left margins
 - Set the scales max range by subtracting the relevant margins e.g. top and bottom for the vertical scale
 - We wrap the visualisation area within a group and translate it by left and top margins
+- Create an axis group and append it to the visualisation group
+
+d3 provides axis utilities for creating axes. For instance, we can use `d3.axisLeft` to create a left axis using our y scale;
+
+```js
+const visGroup = svg.append('g');
+const height = 960;
+const yScale = d3.scaleBand()
+  .domain(['Red', 'Green', 'Blue', 'Gold'])
+  .range([0, height])
+
+const renderYAxisTo = d3.axisLeft(yScale);
+const yAxisGroup = visGroup.append('g');
+renderYAxisTo(yAxisGroup)
+
+```
+
+### Customising axes
+#### Formating numbers
+d3 provides a number formatting utility for axes, `d3.format(<format specifier>)` which can be used with `tickFormat` method of an axis instance.
+
+```js
+const renderYAxisTo = d3.axisLeft(yScale)
+  .tickFormat(d3.format('.2s'));
+```
+
+`tickFormat` accepts a function that receives a number and returns a formatted `string`. `d3.format` does that; it returns a function that accepts a number and returns a formatted `string`. We can, therefore, create our own custom formatter as a function that accepts a number and formats it.
+
+```js
+const tickFormatter = number => d3.format('.2s')(number);
+const renderYAxisTo = d3.axisLeft(yScale)
+  .tickFormat(tickFormatter);
+```
+
+#### Removing unnecessary lines
+d3 selections have a method `remove` that removes the selection from the DOM.
+
+```js
+yAxisGroup
+  .selectAll('.domain, g.tick line') // selectAll, select work like css accessors
+  .remove();
+```
+
+#### Adding a visualisation title
+We append a `text` svg element to the visualisation.
+
+#### Tick gridlines
+The axis creator has another property `tickSize` which sets the size of the tick lines. By setting this to the inner height of the chart, the tick marks create tick gridlines.
+
+```js
+const renderYAxisTo = d3.axisLeft(yScale)
+  .tickFormat(d3.format('.2s'))
+  .tickSize(-innerChartHeight); // for bottom axis, set negative for the tick gridlines to span upwards
+```
+
+
+## Scatter plots
+This are very good for visualisation of quantitative attributes.

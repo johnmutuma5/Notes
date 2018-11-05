@@ -25,7 +25,7 @@ The REPL is invoked by running Node without specifying a file to execute. The RE
 ## Building a RESTful API
 The code for the application can be found in the `apps` directory under `restful_api`.
 ### Starting a HTTP server
-We need the `http` module which is a standard module for Nodejs.
+We need the `http` module which is a standard module for `Nodejs`.
 
 > `const http = require('http');`
 
