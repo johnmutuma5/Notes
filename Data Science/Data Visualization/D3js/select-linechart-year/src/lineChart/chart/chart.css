@@ -1,0 +1,6 @@
+path.sparkline {
+   stroke-linecap: round;
+   stroke-width: 3;
+   fill: none;
+   mix-blend-mode: multiply;
+}

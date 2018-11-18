@@ -75,3 +75,28 @@ This can be accessed from the `parsedUrl` with `parsedUrl.query` if the second `
 
 ### Parsing Request Headers
 These can be accessed via `req.headers`.
+
+### Parsing Payloads
+We can make use of the `string_decoder` library to parse `json` strings. `json` strings are utf-8 encoded.
+
+```js
+const { StringDecoder } = require('string_decoder');
+
+function serverCallback = (req, res) => {
+  const decoder = new StringDecoder('utf8');
+  const requestData = '';
+  req.on('data', data => {
+    requestData += decoder.write(data);
+  });
+  req.on('end', () => {
+    requestData += decoder.end();
+  })
+}
+
+// create a http server with req, res
+const server = http.createServer(serverCallback);
+server.listen(3000, () => 'listening now on 3000')
+```
+
+### Routing Requests
+By creating a routing class/object that can store the applications routes and their respective handlers, we can process different requests with different handlers.
