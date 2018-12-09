@@ -100,3 +100,51 @@ server.listen(3000, () => 'listening now on 3000')
 
 ### Routing Requests
 By creating a routing class/object that can store the applications routes and their respective handlers, we can process different requests with different handlers.
+
+### Adding status code, message and headers to response
+Using `res.writeHead`, we are able to add a response code, a message and headers to the response. e.g.
+
+```js
+return res.writeHead(200, 'OK', {
+  'Content-Type': 'text/plain'
+})
+```
+
+Alternatively, we can set the headers using `res.setHeader` to set a single header on the response. `res.writeHead` gets precedence.
+
+```js
+res.setHeader('Content-Type', 'text/plain');
+```
+
+### Returning JSON
+We need to set the content type in the headers to  JSON.
+
+`res.setHeader('Content-Type', 'application/json');`
+
+### Hashing passwords
+Using Nodejs crypto library, we can hash user passwords for storage. e.g.
+
+```js
+const hash = crypto.createHmac('sha256', <hashSecret>).update(<str>).digest('hex');
+```
+
+### Connecting to an API
+We can send requests with `http.request(<requestObj>, <callback>)`
+
+```js
+const reqObj = {
+  protocol: 'https',
+  hostname: 'test.io',
+  method: 'POST',
+};
+
+const req = https.request(reqObj, res => {
+  console.log(res);
+});
+
+req.on('error', err => {
+  console.log(err);
+});
+
+req.end();
+```

@@ -50,7 +50,7 @@ class Relay extends Function {
     server.listen(port, callback());
   }
 
-  resolveTrack(req, res) {
+  resolveRoute(req, res) {
     const { pathname } = urlParser(req);
     return this.availableRoutes.find(route => {
       const pattern = route.pattern;
@@ -60,7 +60,7 @@ class Relay extends Function {
 
   prepareRace() {
     const { req, res } = this;
-    const track = this.resolveTrack(req, res);
+    const track = this.resolveRoute(req, res);
     const runners = [...(this.globalRunners), ...(track.runners)];
     const relayQueue = new RelayQueue(runners, req, res);
     this.signalBeginRace(relayQueue);

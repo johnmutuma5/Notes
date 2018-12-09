@@ -33,11 +33,11 @@ export class RootRouter {
     }
   }
 
-  traverseTreePreOrder(currentNode, toLeafMemory, travCollection) {/*backtracking*/
+  traverseTreePreOrder/*backtracking*/(currentNode, toLeafMemory, travCollection) {
     if (!currentNode) return;
     // choose
     toLeafMemory.traversedSubUrls.push(currentNode.subPath);
-    if (!currentNode.children) {/*we're at at leaf*/
+    if (!currentNode.children)/*we're at at leaf*/ {
       toLeafMemory.runnersAtLeaf = currentNode.runners;
       toLeafMemory.fullUrl = toLeafMemory.traversedSubUrls.join('');
       return travCollection.push(this.cloneUrlObject(toLeafMemory));
