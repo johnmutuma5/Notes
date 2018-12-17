@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
 })
 export class ServerComponent {
   allow = false;
-  ev: HTMLInputElement
+
 
 }
