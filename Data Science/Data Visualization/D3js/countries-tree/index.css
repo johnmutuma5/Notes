@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+}
+
+path.path.path-links {
+  fill: none;
+  stroke: #12aaa4;
+  stroke-width: .75;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: stretch 3s linear forwards;
+}
+
+.node-text {
+  fill: black;
+  text-shadow: .3px .3px .3px white;
+  font-family: sans-serif;
+}
+
+.node-circle {
+  fill: white;
+  stroke: #12aaa4;
+}
+
+@keyframes stretch {
+  /* from {
+    stroke-dashoffset: -100%;
+  } */
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}

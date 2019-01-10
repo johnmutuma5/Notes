@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+}
+
+.vis-group {
+}
+
+rect.bar {
+  stroke: snow;
+  stroke-width: .25px;
+  fill: steelblue;
+}
+
+.axis text {
+  font-size: 1.15em;
+}
+
+.chart-title {
+  font-family: sans-serif;
+  font-size: 1.3em;
+}
+
+.tick line {
+  stroke: #E0D5D1;
+}

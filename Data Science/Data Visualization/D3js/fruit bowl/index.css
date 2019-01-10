@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+}
+
+rect.bowl {
+  fill: turquoise;
+}
+
+text {
+  font-family: sans-serif;
+}

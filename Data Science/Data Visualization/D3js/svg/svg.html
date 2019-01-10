@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Shapes</title>
+    <link rel="stylesheet" href="svg.css">
+  </head>
+  <body>
+    <svg height="960px" width="960px">
+      <g transform="scale(2.2) rotate(-10) translate(0, 50)">
+        <circle r="50" cx="50" cy="60" fill="coral" />
+        <rect x="110" y="10" width="50" height="50" fill="skyblue" />
+        <g transform="translate(50, 110)" fill='magenta'>
+          <circle r="50" cx="50" cy="60" />
+          <rect x="110" y="10" width="50" height="50" fill="skyblue" />
+        </g>
+        <g class="lines">
+          <line x1="200" y1="200" x2="400" y2="400" />
+          <path d="M150,200 l50,150 l100,50" stroke="coral" />
+        </g>
+      </g>
+    </svg>
+  </body>
+</html>

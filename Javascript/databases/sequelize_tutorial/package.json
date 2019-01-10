@@ -1,0 +1,26 @@
+{
+  "name": "sequelize_tutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules",
+    "start": "npm run build && node dist/app.js",
+    "start:dev": "nodemon --exec babel-node src/app.js"
+  },
+  "keywords": [],
+  "author": "John Mutuma",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.38.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^1.18.3"
+  }
+}
