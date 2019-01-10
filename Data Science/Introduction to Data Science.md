@@ -1,3 +1,9 @@
+# Table of Contents
+- [Measures of central tendency](#measures-of-central-tendency)
+- [Measures of Asymmetry](#measures-of-asymmetry)
+  - [Skewness](#skewness)
+- [Measures of variability](#measures-of-variability)
+
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
 - raw facts
@@ -159,4 +165,71 @@ Data can be classified based on its types and its measurement levels.
   - Ordinal - akin to categorical except that they can follow an order of magnitude e.g. low-medium-high, cold-warm-hot,
 - Quantitative
   - Ratios - they have true zeros
-  - Intervals - they have no true zeros and usually can posses different units of measurement e.g. temperature(degrees and farenheights)
+  - Intervals - they have no true zeros and the distances between any two adjacent points have equal magnitude e.g. temperature(degrees and farenheights)
+
+
+###  Visualising data
+It is very easy to decide on which type of visualisation is most appropriate based on the classification of data by type and/or levels of measurement.
+
+#### Categorical(Nominal and Ordinal) variables visualisation techniques
+These are best visualised with:
+- Frequency Distribution tables. See example [below](#frequency-distribution-table-example)
+- Bar Charts
+- Pie Charts
+- Pareto diagrams - a pareto diagram is simply a bar chart with the items ordered by their relative frequency and also includes a additional line representing the cumulative frequencies; this is plotted against an additional axis for the frequency line. It can be used to display information that bar graphs would normaly do and additionally shows the cumulative frequencies e.g. top 1, top 2 etc. if ordered in descending order and bottom 1, bottom 2 etc if ordered in ascending order.
+
+#### Numeric(Ratios and Intervals) variables visualisation techniques
+
+- Histogram: when visualising Numeric data on a Histogram, it only makes sense when we group the items into ranges. It is recommended that we use 5 to 20 number of ranges. The interval width can be computed as follows:
+  ```
+  number of intervals = (max_value - min_value)/diserable_no_of_intervals
+  ```
+  it is more common to plot a Histogram with the relative frequencies rather than the absolute frequencies.
+- Cross Tables:
+- Scatter plots:
+
+### Measures of central tendency
+#### The mean
+This is also known as the simple average. The mean is a very common measure but one of its downsides is that it is easily affected by outliers.
+
+#### The median
+This is computed by getting the middle point in an ordered dataset (or an average if the middle point is between two elements in the dataset). It is not affected by outliers giving a less biased representation.
+
+#### The mode
+The number that occurs most often. Can be used both for categorical and numerical data.
+
+There is no best measure of central tendency amongst the three but the best practice is to use at least two of them together and the worst practice is to use only one.
+
+### Measures of Asymmetry
+#### Skewness
+This is a measure of asymmetry that indicates whether the observations in a dataset are skewed on one side.
+A quick glance at the measures of central tendency can suggest the type of skewness; if the mean of a dataset is greater than the median, then we have a `positive` or a `right` skew. **By plotting a Histogram on such a dataset, we can see that the outliers are to the right.**
+
+Measures of symmetry such as skewness are the link between measures of central tendency and probability theory which contributes a lot towards understanding the data that we're working with.
+
+### Measures of variability
+#### Variance
+Measures the dispersion of a set of data points around their mean value.
+
+```
+  population variance (σ^2) =   Σ(x - population_mean)^2 / N
+
+  sample variance (S^2) = Σ(x - sample_mean)^2 / n-1
+```
+
+Ideally, the numerator is amplified to the second degree(squared) in order to;
+- eliminate the effect of cancelling out negative and positive values when summing
+- to amplify the magnitude of large differences
+
+The population variance has a higher potential variability because more data points are available; that is why the denominator in the sample variance is less 1 in order to rightfully correct the sample variance upwards.
+
+
+
+## Appendix
+#### Frequency Distribution Table example
+|   |Freq  |
+|:-:|:-----|
+|A  |20%   |
+|B  |30%   |
+|C  |50%   |
+|**Total**|**100%**|

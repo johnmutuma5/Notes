@@ -1,17 +1,17 @@
 import { User } from '../../controllers';
 import { authenticate } from '../../middleware';
+import singleUserRoute from './singleUser';
+
+// all users
+const userRouteRunners = [
+  authenticate,
+  User.greet
+];
 
 const userRoutes = baseRouter => {
-  // all users
-  const userRouteRunners = [];
-  userRouteRunners.push(authenticate);
-  userRouteRunners.push(User.greet);
-  const userRoute = baseRouter.extrude('/user', userRouteRunners);
-  // single user
-  const singleUserRouteRunners = [];
-  singleUserRouteRunners.push(authenticate);
-  singleUserRouteRunners.push(User.getOne);
-  userRoute.extrude('/1', singleUserRouteRunners);
+  const userRouter = baseRouter.extrude('/user', userRouteRunners);
+  // single user: /user/:id
+  singleUserRoute(userRouter);
 };
 
 export default userRoutes;

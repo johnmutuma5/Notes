@@ -74,7 +74,7 @@ This is the Shell executable to be run by the container. e.g. `python`, `mongod`
 > ENTRYPOINT ["python3"]
 
 ### CMD
-The holds a list of arguemnts that gets passed to the executable in the `ENTRYPOINT`. If no `ENTRYPOINT` has been set, the first item in this array is treated as the `ENTRYPOINT`. We can only have one CMD instruction per Dockerfile.
+The holds a list of arguments that gets passed to the executable in the `ENTRYPOINT`. If no `ENTRYPOINT` has been set, the first item in this array is treated as the `ENTRYPOINT`. We can only have one CMD instruction per Dockerfile.
 
 > CMD ["app.py"]
 
@@ -157,11 +157,33 @@ We can check the file owneship
 
 > docker run lazuli ls -l
 
+## Managing Images and Containers
+When a container is running in detached mode, we can run additional commands on the container with `docker exec`;
+
+> docker exec -it <my_image> <executable_>
+
+e.g.
+> docker exec -it lazuli /bin/bash
+
+
+
 
 
 ## Appendix
 - Getting an image's configuration
   > docker inspect <image_name>
+
+- Getting all images on a docker host
+  > docker images
+
+- Getting all containers in a docker host
+  > docker ps -a
+
+- Removing an image from a docker host
+  > docker rmi <image_tag>
+
+- Getting container logs
+  > docker logs <container_hash/name>
 
 - Create a container from an image
   > docker run -p <port_to_publish>:<exposed_port> <image_to_use>
