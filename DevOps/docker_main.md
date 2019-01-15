@@ -4,12 +4,13 @@
 - [What is an Image](#what-is-an-image)
 - [Manipulating Containers with the Docker Client](#manipulating-containers-with-the-docker-client)
   - [Overwriting default command](#overwriting-default-command)
-  - [Listing commands](#listing-commands)
+  - [Listing containers](#listing-containers)
   - [Restarting stopped containers](#restarting-stopped-containers)
   - [Removing stopped containers](#removing-stopped-containers)
   - [Stopping running containers](#stopping-running-containers)
   - [Executing commands in running containers](#executing-commands-in-running-containers)
     - [The purpose of the -it flag](#the-purpose-of-the--it-flag)
+- [Creating docker images](#creating-docker-images)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -57,6 +58,21 @@ To achieve the above, we use `docker exec -it <container_id> <command>`. i.e. `d
 #### The purpose of the -it flag
 The `-i` flag or `--interactive` keeps the `STDIN` of the container open. The `-t` or `--tty` flag allocates a pseudo-TTY to the container and attaches it to the local terminal entry point.
 
+### Getting terminal access to a running container
+We can open up a shell for a container e.g. whenever we want to run commands in the container without the need to run the `docker exec` command multiple times. To open a shell for a container, we can use the following command;
+
+`docker exec -it <container-id> sh`
+
+`sh` is the name of a program being executed inside the container. It is the shell.
+
+## Creating docker images
+We begin by creating a Dockerfile;
+
+![](notes-images/creating-docker-file.png)
+*[img:] The basic steps in creating a Dockerfile*
+
+
+
 # Appendix
 ## Commands
 - `docker create <image> [<custom command>]` - create a container from an image
@@ -67,3 +83,4 @@ The `-i` flag or `--interactive` keeps the `STDIN` of the container open. The `-
 - `docker stop <container_id>` - stop a container `SIGTERM`
 - `docker kill <container_id>` - kill a container `SIGKILL`
 - `docker exec -it <container_id> <command>` - execute another command on a running container
+- `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
