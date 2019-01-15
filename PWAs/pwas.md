@@ -177,3 +177,32 @@ Cacheable items constitute the application shell. These can include the toolbar,
 
 #### Pre-caching the app shell
 ![img](notes-images/static-caching-installation.png)
+*[img] The static files caching flow*
+
+
+We do this by accessing the cache API in the installation stage of the service worker and there we can open a cache by it's identity.
+
+```js
+self.addEventListener('install', event => {
+  const preCache = async () => {
+    const cache = await caches.open('static-files'); // opens if exists or creates if not
+    await cache.add('path/to/the/static/file')
+  }
+
+  return event.waitUntil(preCache());
+})
+```
+
+To retrieve the cached asset from the cache, we add that to the `fetch` event listener of the service worker.
+
+```js
+self.addEventListener('fetch', event => {
+  const getResponse = async () => {
+    const { request } = event;
+    const response = await caches.match(request);
+    return (response && response) || fetch(request);
+  };
+
+  return event.respondWith(getResponse());
+})
+```
