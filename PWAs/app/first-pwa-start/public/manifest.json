@@ -1,6 +1,6 @@
 {
-  "name": "AmazingGram! Post and share your photos on the go!",
-  "short_name": "AmazingGram",
+  "name": "Instagram as Progressive Web App",
+  "short_name": "PWAGram",
   "icons": [
     {
       "src": "/src/images/icons/app-icon-48x48.png",
@@ -44,7 +44,7 @@
   "orientation": "portrait-primary",
   "background_color": "#fff",
   "theme_color": "#3f51b5",
-  "description": "A simple instagram clone with a lot of PWA love <3",
+  "description": "A simple Instagram Clone, implementing a lot of PWA love.",
   "dir": "ltr",
-  "lang": "en_US"
+  "lang": "en-US"
 }

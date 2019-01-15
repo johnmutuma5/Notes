@@ -12,6 +12,12 @@
   - [Service worker lifecycle](#service-worker-lifecycle)
   - [Registering a service worker](#registering-a-service-worker)
     - [Minimum registration steps](#minimum-registration-steps)
+  - [Non-lifecycle event listeners](#non-lifecycle-event-listeners)
+- [Getting the app install banner](#getting-the-app-install-banner)
+- [Caching](#caching)
+  - [Understanding the cache API](#understanding-the-cache-api)
+  - [Using the service worker for caching](#using-the-service-worker-for-caching)
+    - [Pre-caching the app shell](#pre-caching-the-app-shell)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -123,3 +129,51 @@ The best place to register the service worker is in the root JavaScript file e.g
     console.log('Installing service worker...', event)
   ));
   ```
+### Non-lifecycle event listeners
+#### Fetch
+The fetch event will get triggered during events such as
+- The pages fetch JavaScript, CSS files and image assets
+- When a fetch request is called in JavaScript to fetch resources from an API
+
+Some key elements in the fetch event object;
+- `e.respondWith` - As the service worker sits as a proxy between the client and the server, it may use this method to intercept the request and generate custom responses.
+  ```js
+  self.addEventListener('fetch', event => {
+    event.respondWith(fetch(event.request)); // does nothing useful here but to just resend the fetch request
+  })
+  ```
+
+
+## Getting the app install banner
+After the service worker has been installed and we have the `manifest.json` file, we have fulfilled the requirements for getting the app install banner for Google Chrome and the client will get this pop up once they interact with the application at least twice with at least 5 minutes between each visit.
+
+### Deferring the install banner
+We may desire to have this banner shown only when certain custom criteria is fulfilled as opposed to the minimum requirements above. With that, we can listen to the banner's event `beforeinstallprompt`.
+
+This being a browser event, we add it to the main JavaScript file on the `window` object.
+
+```js
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  // some code to customise when to show the banner
+})
+```
+
+## Caching
+Caching is a key element to providing offline support for our application. This is important for cases where there is either no connection or there is poor connection, or in `Lie-Fie`.
+
+### Understanding the cache API
+This involves a separate cache storage that lives in the browser but is managed by the developer.
+
+The cache maintains key-value pairs where usually the key is the request and the value is the response. The response ought to have been received at least once successfully so that it can be cached.
+
+The cache API can be accessed both in the service workers and also in ordinary JavaScript but they are benefits to both.
+
+The cached data can be retrieved instead of sending the request across the network.
+
+
+### Using the service worker for caching
+Cacheable items constitute the application shell. These can include the toolbar, the sidebar, the footer. Loaded styling and JavaScript files and images in the `<img>` tag are also cacheable items and also some full pages of the application. Static pages are fully cacheable.
+
+#### Pre-caching the app shell
+![img](notes-images/static-caching-installation.png)
