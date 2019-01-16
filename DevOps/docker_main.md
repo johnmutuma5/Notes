@@ -66,12 +66,18 @@ We can open up a shell for a container e.g. whenever we want to run commands in 
 `sh` is the name of a program being executed inside the container. It is the shell.
 
 ## Creating docker images
-We begin by creating a Dockerfile;
+We begin by creating a Dockerfile;x
 
 ![](notes-images/creating-docker-file.png)
 *[img:] The basic steps in creating a Dockerfile*
 
+A simple Dockerfile for a redis container can look like this:
 
+```
+FROM alpine
+RUN apk add --update redis
+CMD ["redis-server"]
+```
 
 # Appendix
 ## Commands
