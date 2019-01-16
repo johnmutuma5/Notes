@@ -3,6 +3,9 @@
 - [Measures of Asymmetry](#measures-of-asymmetry)
   - [Skewness](#skewness)
 - [Measures of variability](#measures-of-variability)
+  - [Variance](#variance)
+  - [The standard deviation](#the-standard-deviation)
+  - [Coefficient of variation](#coefficient-of-variation)
 
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
@@ -203,7 +206,10 @@ There is no best measure of central tendency amongst the three but the best prac
 ### Measures of Asymmetry
 #### Skewness
 This is a measure of asymmetry that indicates whether the observations in a dataset are skewed on one side.
-A quick glance at the measures of central tendency can suggest the type of skewness; if the mean of a dataset is greater than the median, then we have a `positive` or a `right` skew. **By plotting a Histogram on such a dataset, we can see that the outliers are to the right.**
+A quick glance at the measures of central tendency can suggest the type of skewness; if the mean of a dataset is greater than the median, then we have a `positive` or a `right` skew. They are skewed to the right because the outliers are to the right of mean. **By plotting a Histogram on such a dataset, we can see that the outliers are to the right.**
+
+![](notes-images/skewness-types.png)
+*[img] Types of skewness in data*
 
 Measures of symmetry such as skewness are the link between measures of central tendency and probability theory which contributes a lot towards understanding the data that we're working with.
 
@@ -211,17 +217,43 @@ Measures of symmetry such as skewness are the link between measures of central t
 #### Variance
 Measures the dispersion of a set of data points around their mean value.
 
-```
-  population variance (σ^2) =   Σ(x - population_mean)^2 / N
+![Population var](notes-images/pop_variance.png)
 
-  sample variance (S^2) = Σ(x - sample_mean)^2 / n-1
-```
+*[img] Population variance*
 
+
+![Sample var](notes-images/sample_variance.png)
+
+*[img] Sample variance*
+
+The variance is also referred to as the `Mean Square Deviation`.
 Ideally, the numerator is amplified to the second degree(squared) in order to;
 - eliminate the effect of cancelling out negative and positive values when summing
 - to amplify the magnitude of large differences
 
 The population variance has a higher potential variability because more data points are available; that is why the denominator in the sample variance is less 1 in order to rightfully correct the sample variance upwards.
+
+#### The standard deviation
+In most cases, the value obtained from the variance is huge and hard to compare as the units of measurement are squared. The easy fix is to get the Standard Deviation of the data; this is the square root of the variance. It is also called the `Root Mean Square Deviation`.
+
+![Population SD](notes-images/pop_standard_deviation.png)
+
+*[img] Population standard deviation*
+
+![Sample SD](notes-images/sample_standard_deviation.png)
+
+*[img] Sample standard deviation*
+
+#### Coefficient of variation
+This is also called the `Relative standard deviation`. It is the fraction of the standard deviation and the mean. i.e. The standard deviation divided by the mean.
+
+![Population Coeff Var](notes-images/pop_coeff_var.png)
+
+*[img] Population standard deviation* 👆🏽
+
+![Sample Coeff Var](notes-images/sample_coeff_var.png)
+
+*[img] Sample standard deviation*
 
 
 
