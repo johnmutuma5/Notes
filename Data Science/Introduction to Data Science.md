@@ -3,9 +3,13 @@
 - [Measures of Asymmetry](#measures-of-asymmetry)
   - [Skewness](#skewness)
 - [Measures of variability](#measures-of-variability)
-  - [Variance](#variance)
-  - [The standard deviation](#the-standard-deviation)
-  - [Coefficient of variation](#coefficient-of-variation)
+  - [Univariate measures](#univariate-measures)
+    - [Variance](#variance)
+    - [The standard deviation](#the-standard-deviation)
+    - [Coefficient of variation](#coefficient-of-variation)
+  - [Multivariate measures](#multivariate-measures)
+    - [Covariance](#covariance)
+    - [Correlation coefficient](#correlation-coefficient)
 
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
@@ -214,7 +218,10 @@ A quick glance at the measures of central tendency can suggest the type of skewn
 Measures of symmetry such as skewness are the link between measures of central tendency and probability theory which contributes a lot towards understanding the data that we're working with.
 
 ### Measures of variability
-#### Variance
+There are univariate and multivariate measures of variability. The following are the univariate measures;
+
+#### Univariate measures
+##### Variance
 Measures the dispersion of a set of data points around their mean value.
 
 ![Population var](notes-images/pop_variance.png)
@@ -233,18 +240,16 @@ Ideally, the numerator is amplified to the second degree(squared) in order to;
 
 The population variance has a higher potential variability because more data points are available; that is why the denominator in the sample variance is less 1 in order to rightfully correct the sample variance upwards.
 
-#### The standard deviation
+##### The standard deviation
 In most cases, the value obtained from the variance is huge and hard to compare as the units of measurement are squared. The easy fix is to get the Standard Deviation of the data; this is the square root of the variance. It is also called the `Root Mean Square Deviation`.
 
 ![Population SD](notes-images/pop_standard_deviation.png)
 
 *[img] Population standard deviation*
 
-![Sample SD](notes-images/sample_standard_deviation.png)
+The same is for the sample standard deviation.
 
-*[img] Sample standard deviation*
-
-#### Coefficient of variation
+##### Coefficient of variation
 This is also called the `Relative standard deviation`. It is the fraction of the standard deviation and the mean. i.e. The standard deviation divided by the mean.
 
 ![Population Coeff Var](notes-images/pop_coeff_var.png)
@@ -255,6 +260,32 @@ This is also called the `Relative standard deviation`. It is the fraction of the
 
 *[img] Sample standard deviation*
 
+This is perfect for comparing variance between different data.
+
+
+#### Multivariate measures
+The are two major **Accumulation** measures of variability and these are;
+
+##### Covariance
+This is a measure of correlation between two variables. It answers the question with regards to how correlated two variables are in a dataset. Unlike variance, it can either be positive, negative or zero.
+
+![Sample covariance](notes-images/sample_covar.png)
+*[img] Sample Covariance*
+
+![Sample covariance](notes-images/pop_covar.png)
+*[img] Population Covariance*
+
+Computing the value results a measure that is not very easy to compare with another because the values that result are completely of different scales. They have no perceivable relationships. The correlation coefficient helps in solving that problem
+
+##### Correlation coefficient
+Correlation adjusts covariance so that the relationship between the two variables becomes intuitive and easy to understand and interpret. It can be described as the ratio between the covariance and the product of the standard deviations of the two variables.
+
+![Sample covariance](notes-images/correlation_coeff.png)
+*[img] Correlation coefficient*
+
+The value can range between -1 and 1 with the former indicating perfect negative correlation between the two variables at all and the latter being an indication of perfect positive correlation. A coefficient of 0 is an indication of lack of correlation between the two variables.
+
+It is also important to understand the direction of causal relationships. For now, we should understand that correlation does not imply causation.
 
 
 ## Appendix
