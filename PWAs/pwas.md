@@ -20,6 +20,8 @@
     - [Pre-caching the app shell](#pre-caching-the-app-shell)
     - [Caching multiple files](#caching-multiple-files)
   - [Dynamic caching](#dynamic-caching)
+  - [Managing the cache versions](#managing-the-cache-versions)
+    - [Cleaning up old caches](#cleaning-up-old-caches)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -243,3 +245,57 @@ Some assets are only available to us once a request has already been sent out to
 
 ![](notes-images/dynamic-caching-process.png)
 *[img: Courtesy of Academind] The basic flow of dynamic caching*
+
+##### Implemeting dynamic caching
+
+```js
+// ...
+self.addEventListener('fetch', event => {
+  const getResponse = async () => {
+    const { request } = event;
+    const cachedResponse = await caches.match(request);
+    let response = cachedResponse;
+    if (!response) {
+      response = await fetch(request);
+      const cache = await caches.open('dynamic');
+      await cache.put(request.url, response);
+    }
+    return response;
+  };
+  event.respondWith(getResponse());
+});
+```
+
+### Managing the cache versions
+The service worker is usually updated when changes occur in the service worker file. But when we make changes to cached static files, these are not usually updated immediately; a crude way to trigger the update of the caches is by making a tiny change in the service worker file to necessitate an update of the service worker and therefore an update of the caches. A more appropriate approach would be to manage cache versions. We do this by updating the version number of the cache to open;
+
+```js
+// ...
+caches.open('static-files-v2');
+```
+However, effecting that change alone in the service worker won't work if the service worker is not cleaning up the old cache version. This is because as we try to match the request from the caches, chances are that we're going to get the cached response from the old cache version which does not include our changes in the cached file.
+
+#### Cleaning up old caches
+Cleaning up old caches is best done in the activation phase of the service worker; once the service worker has been installed and a new version of the cache has been created, the service worker goes into the activation stage and at this point, we can clean up the old preCache. Just before the activation stage of the new service worker, the application, through the old service worker, maybe making use of files that are in the previous cache version; that is why it is more appropriate to do the cache clean up in the activation stage just when the service workers are exchanging the baton.
+
+```js
+// ...
+const STATIC_CACHE_ID = 'static-v1';
+const DYNAMIC_CACHE_ID = 'dynamic-v1';
+
+self.addEventListener('activate', event => {
+  // ...
+  const preCacheCleanUp = async () => {
+    const cacheIds = await caches.keys();
+    const removeCacheProms = cacheIds.map(id => {
+      if (id !== STATIC_CACHE_ID && id !== DYNAMIC_CACHE_ID){
+        console.log('[Service worker] delete cache', id);
+        return caches.delete(id);
+      }
+    });
+    return removeCacheProms;
+  };
+  event.waitUntil(preCacheCleanUp());
+  // ...
+})
+```
