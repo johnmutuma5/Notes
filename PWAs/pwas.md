@@ -18,6 +18,8 @@
   - [Understanding the cache API](#understanding-the-cache-api)
   - [Using the service worker for caching](#using-the-service-worker-for-caching)
     - [Pre-caching the app shell](#pre-caching-the-app-shell)
+    - [Caching multiple files](#caching-multiple-files)
+  - [Dynamic caching](#dynamic-caching)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -206,3 +208,38 @@ self.addEventListener('fetch', event => {
   return event.respondWith(getResponse());
 })
 ```
+
+#### Caching multiple files
+##### Caching the homepage
+The homepage is usually loaded at the index route i.e. `localhost:<port>/` and usually fetches the `index.html`. With that in mind, to cache the homepage, we should cache both requests;
+
+```js
+// ...
+cache.add('/');
+cache.add('/index.html');
+// we'll see how to add multiple files to the cache below
+```
+##### Using cache addAll
+This is used to cache multiple files as follows;
+
+```js
+self.addEventListener('install', event => {
+  const preCache = async () => {
+    const cache = await caches.open('static-files'); // opens if exists or creates if not
+    await cache.addAll([
+      '/' // important to remember to cache index route as this is what initiates the loading of the application
+      '/index.html',
+      '/src/js/app.js',
+      '/src/js/feed.js'
+    ]);
+  }
+
+  return event.waitUntil(preCache());
+})
+```
+
+#### Dynamic caching
+Some assets are only available to us once a request has already been sent out to fetch them and it has responded successfully. We may want to cache some of these assets the moment they have been available; this would mean that precaching at service worker installation may not work for such circumstances. Caching such assets can be achieved with dyanamic caching;
+
+![](notes-images/dynamic-caching-process.png)
+*[img: Courtesy of Academind] The basic flow of dynamic caching*
