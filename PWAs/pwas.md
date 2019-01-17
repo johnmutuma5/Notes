@@ -25,6 +25,12 @@
   - [Advanced caching](#advanced-caching)
     - [Caching on demand](#caching-on-demand)
     - [Providing an offline fallback page](#providing-an-offline-fallback-page)
+    - [Illustrating caching with network fallback strategy](#illustrating-caching-with-network-fallback-strategy)
+    - [The cache only strategy](#the-cache-only-strategy)
+    - [The network only strategy](#the-network-only-strategy)
+    - [The network with cache fallback strategy](#the-network-with-cache-fallback-strategy)
+    - [The cache then network strategy](#the-cache-then-network-strategy)
+      - [Cache then network with offline support](#cache-then-network-with-offline-support)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -261,7 +267,7 @@ self.addEventListener('fetch', event => {
     if (!response) {
       response = await fetch(request);
       const cache = await caches.open('dynamic');
-      await cache.put(request.url, response);
+      await cache.put(request.url, response.clone());
     }
     return response;
   };
@@ -341,7 +347,7 @@ self.addEventListener('fetch', event => {
         // try to fetch the request
         response = await fetch(request);
         const cache = await caches.open(DYNAMIC_CACHE_ID);
-        await cache.put(request.url, response);
+        await cache.put(request.url, response.clone());
       } catch(err) {
         //  catch all fetch errors; we'll improve later
         cache = await caches.open('STATIC_CACHE_ID');
@@ -354,3 +360,141 @@ self.addEventListener('fetch', event => {
 });
 
 ```
+
+#### Illustrating caching with network fallback strategy
+So far, the strategy that we have been using can be described as 'Cache with network fallback'. The whole idea is to user the service worker as an interceptor of requests and it'll load assets for a request from the cache if they are availabe, otherwise send the request using `fetch` across the network to get a response.
+
+![](notes-images/cache-strategy-1.png)
+*[img: Courtesy of Academind] Caching with network fallback strategy*
+
+This could result in a few problems especially once we're responding with cached data for requests whose responses keep changing e.g. there's new data available in the response. We'll see the workaround below.
+
+#### The cache only strategy
+This would mean blocking every request from accessing the network and try to load every from the cache. This is important for special assets but in general it is not a very appropriate strategy.
+
+#### The network only strategy
+This is the opposite of the 'cache only strategy'. It implies fetching every request from the network and completely disregarding the cache. Not a very useful strategy as this is the default behaviour without service workers.
+
+#### The network with cache fallback strategy
+In this strategy, we'd hit the network first all the time and only if the network path fails, then we'd look into the cache for a response and respond with that.
+
+![](notes-images/cache-strategy-2.png)
+*[img: Courtesy of Academind] Network with cache fallback strategy*
+
+The disadvantage of this is that we don't take advantage of the quick responses of the cache; imagine a scenario whereby the network is set to timeout after 60sec. That would mean that we wait for 60sec to respond with what has been cached; not very good user experience!
+
+
+```js
+self.addEventListener('fetch', event => {
+  const getResponse = async () => {
+    let response;
+    try {
+      response = await fetch(event.request);
+      // we can cache the reponse at this point
+    } catch (e) {
+      response = caches.match(event.request);
+    }
+    return response;
+  }
+  event.respondWith(getResponse());
+})
+```
+
+#### The cache then network strategy
+This strategy involves reaching to the cache first for a response and then, if found, respond with that and then proceed to the network to check an update of the response and if found, update the previously served response both in the cache and the display.
+
+![](notes-images/cache-strategy-3.png)
+*[img: Courtesy of Academind] Cache, then network strategy*
+
+Normal JavaScript starts out by fetching a response directly from the cache and simultaneously, the request is also handled by the service worker to fetch from the network and update the cache and return the fetched data to the page.
+
+```js
+// feed.js
+// Fetch from network
+const url = 'https://httpbin.org/get';
+const receivedNetworkResp = false; // ensures not to overwrite a network resp if it's ready before the cached response
+
+fetch(url)
+  .then(function(res) {
+    return res.json();
+  })
+  .then(function(data) {
+    receivedNetworkResp = true;
+    createCard();
+  });
+
+// send a standby response from cache
+if('caches' in window) {
+  const getCachedResponse = async () => {
+    const response = await caches.match(url);
+    return response.json();
+  }
+  getCachedResponse()
+    .then(data => {
+      if(!receivedNetworkResp)
+        createCard();
+    });
+}
+```
+
+##### Dynamic caching with this strategy
+This is how the service worker listener would look like for this strategy;
+
+```js
+// service worker
+self.addEventListener('fetch', event => {
+  const getResponse = async () => {
+    const response = await fetch(event.request);
+    const cache = await caches.open(DYNAMIC_CACHE_ID);
+    await cache.put(event.request, response.clone());
+    return response;
+  };
+
+  event.respondWith(getResponse());
+});
+```
+
+The problem here would be that we now lose the offline support because we're always making a network call and not handling a network failure. We are also facing a second problem if you can have a look at the items stored in the cache, you'd see that we are again caching items that may have already been cached as static files during the installation phase of the service worker. See below for the solutions.
+
+##### Cache then network with offline support
+For the offline support solution, we'd parse the url to check if the url needs a "cache then network" and if not, we respond with the "cache with network fallback strategy". Remember this is keeping the "cache first strategy" as in the `feed.js` file above.
+
+```js
+// service worker
+self.addEventListener('fetch', event => {
+  const getAndCacheUrl = 'https://httpbin.org/get';
+
+  const getAndCacheResponse = async () => {
+    const response = await fetch(event.request);
+    const cache = await caches.open(DYNAMIC_CACHE_ID);
+    await cache.put(event.request, response.clone());
+    return response;
+  };
+
+  const getCacheOrNetworkResponse = async () => {
+    const { request } = event;
+    const cachedResponse = await caches.match(request);
+    let response = cachedResponse;
+    if (!response) {
+      try {
+        // try to fetch the request
+        response = await fetch(request);
+        const cache = await caches.open(DYNAMIC_CACHE_ID);
+        await cache.put(request.url, response.clone());
+      } catch(err) {
+        //  catch all fetch errors; we'll improve later
+        cache = await caches.open('STATIC_CACHE_ID');
+        response = await cache.match('/offline.html');
+      }
+    }
+    return response;
+  };
+
+  if (event.request.url.includes(getAndCacheUrl)) // fetch and cache the response
+    event.respondWith(getAndCacheResponse());
+  else // use cache with network fallback
+    event.respondWith(getCacheOrNetworkResponse());
+});
+```
+
+This is ideally routing; i.e. we parse the url in the request and if it fullfils a desired condition, then we prefer to fetch it and cache it, otherwise we prefer to try and respond with the cache and if that fails we fallback to the network.

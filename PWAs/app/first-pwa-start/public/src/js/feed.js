@@ -63,7 +63,6 @@ function createCard() {
 
 fetch('https://httpbin.org/get')
   .then(function(res) {
-    console.log(res)
     return res.json();
   })
   .then(function(data) {
