@@ -1,5 +1,5 @@
 const STATIC_CACHE_ID = 'static-files-v2';
-const DYNAMIC_CACHE_ID = 'dynamic-v1'
+const DYNAMIC_CACHE_ID = 'dynamic-v2'
 
 self.addEventListener('install', function(event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
@@ -10,6 +10,7 @@ self.addEventListener('install', function(event) {
     await cache.addAll([
       '/',
       '/index.html',
+      '/offline.html',
       '/src/js/app.js',
       '/src/js/feed.js',
       '/src/js/material.min.js',
@@ -34,7 +35,7 @@ self.addEventListener('activate', function(event) {
         return caches.delete(id);
       }
     });
-    return removeCacheProms;
+    return await Promise.all(removeCacheProms);
   };
   event.waitUntil(preCacheCleanUp());
   return self.clients.claim();
@@ -46,9 +47,15 @@ self.addEventListener('fetch', function(event) {
     const cachedResponse = await caches.match(request);
     let response = cachedResponse;
     if (!response) {
-      response = await fetch(request);
-      const cache = await caches.open(DYNAMIC_CACHE_ID);
-      await cache.put(request.url, response);
+      try {
+        response = await fetch(request);
+        const cache = await caches.open(DYNAMIC_CACHE_ID);
+        await cache.put(request.url, response);
+      } catch(err) {
+        //  catch all fetch errors; we'll improve later
+        cache = await caches.open(STATIC_CACHE_ID);
+        response = await cache.match('/offline.html');
+      }
     }
     return response;
   };

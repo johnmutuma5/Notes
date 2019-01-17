@@ -22,6 +22,9 @@
   - [Dynamic caching](#dynamic-caching)
   - [Managing the cache versions](#managing-the-cache-versions)
     - [Cleaning up old caches](#cleaning-up-old-caches)
+  - [Advanced caching](#advanced-caching)
+    - [Caching on demand](#caching-on-demand)
+    - [Providing an offline fallback page](#providing-an-offline-fallback-page)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -293,9 +296,61 @@ self.addEventListener('activate', event => {
         return caches.delete(id);
       }
     });
-    return removeCacheProms;
+    return await Promise.all(removeCacheProms);
   };
   event.waitUntil(preCacheCleanUp());
   // ...
 })
+```
+
+### Advanced caching
+#### Caching on demand
+Sometimes we may want to cache assets and request responses upon events triggered by the user. If that's the case, then it's important to keep in mind that the cacheAPI is not only available in service worker code, but it is also available in the usual JavaScript code and it can be manipulated upon the occurrence
+ of the events. e.g. upon click of a button.
+
+#### Providing an offline fallback page
+This is important in order to show a more meaningful message in cases where fetching fails probably due to lack of internet access. We can achieve this by creating a fallback `offline.html` and responding with that in case we catch an error in when fetching. For now, we'll see an example where we'd catch basically all fetch failure, but in future that can be fine-tuned.
+
+```js
+// serviceWorker.js
+self.addEventListener('install', event => {
+  // ...
+  // cache static files
+  const preCache = async () => {
+    console.log('[Service worker] Precaching app.js')
+    const cache = await caches.open('STATIC_CACHE_ID');
+    await cache.addAll([
+      // ...
+      '/offline.html',
+      // ...
+    ]);
+  }
+  event.waitUntil(preCache());
+  // ...
+});
+
+
+
+self.addEventListener('fetch', event => {
+  const getResponse = async () => {
+    const { request } = event;
+    const cachedResponse = await caches.match(request);
+    let response = cachedResponse;
+    if (!response) {
+      try {
+        // try to fetch the request
+        response = await fetch(request);
+        const cache = await caches.open(DYNAMIC_CACHE_ID);
+        await cache.put(request.url, response);
+      } catch(err) {
+        //  catch all fetch errors; we'll improve later
+        cache = await caches.open('STATIC_CACHE_ID');
+        response = await cache.match('/offline.html');
+      }
+    }
+    return response;
+  };
+  event.respondWith(getResponse());
+});
+
 ```

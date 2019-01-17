@@ -30,6 +30,10 @@ shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 
+function onClickSaveButton(event) {
+  console.log('clicked')
+}
+
 function createCard() {
   var cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
@@ -48,6 +52,10 @@ function createCard() {
   cardSupportingText.className = 'mdl-card__supporting-text';
   cardSupportingText.textContent = 'In San Francisco';
   cardSupportingText.style.textAlign = 'center';
+  // var saveButton = document.createElement('button');
+  // saveButton.textContent = 'Save';
+  // saveButton.addEventListener('click', onClickSaveButton);
+  // cardSupportingText.appendChild(saveButton);
   cardWrapper.appendChild(cardSupportingText);
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
@@ -55,6 +63,7 @@ function createCard() {
 
 fetch('https://httpbin.org/get')
   .then(function(res) {
+    console.log(res)
     return res.json();
   })
   .then(function(data) {
