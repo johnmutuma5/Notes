@@ -288,6 +288,7 @@ The value can range between -1 and 1 with the former indicating perfect negative
 It is also important to understand the direction of causal relationships. For now, we should understand that correlation does not imply causation.
 
 
+
 ## Appendix
 #### Frequency Distribution Table example
 |   |Freq  |
