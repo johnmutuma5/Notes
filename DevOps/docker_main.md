@@ -11,6 +11,8 @@
   - [Executing commands in running containers](#executing-commands-in-running-containers)
     - [The purpose of the -it flag](#the-purpose-of-the--it-flag)
 - [Creating docker images](#creating-docker-images)
+  - [Tagging an image](#tagging-an-image)
+
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -78,6 +80,22 @@ FROM alpine
 RUN apk add --update redis
 CMD ["redis-server"]
 ```
+
+### Rebuilding from cache
+Docker checks through its cache when building images and ensures that for as long as the order of operations has not changed in the Dockerfile, no new images will be rebuilt but instead, the cached images will be used.
+
+### Tagging an image
+It is sometimes more convenient to refer to an image with a name and also to store versions of an image. Tagging becomes very instrumental in this. To tag an image, we build it with the `-t` flag and the convention is to specify the docker user, name of the image and version in the tag;
+
+> docker build -t <docker_user>/<image_name>:<image_version_tag> <dir_scope>
+
+e.g.
+
+> docker build -t johnmutuma5/redis:latest .
+
+NB: Note the `.` at the end of the command above specifying the Dockerfile for the build lives in the current directory whey the command is being executed.
+
+
 
 # Appendix
 ## Commands
