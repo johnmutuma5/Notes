@@ -1,0 +1,2 @@
+- Algorithm design manual - Skeina
+- Vim - [Mastering the vim language](https://www.youtube.com/watch?v=wlR5gYd6um0 'Vim - Youtube')
