@@ -1,3 +1,6 @@
+import { fork } from 'child_process';
+
+
 export class User {
   static greet(baton) {
     const { req, res, pass, data } = baton;
@@ -13,6 +16,13 @@ export class User {
 export class Home {
   static home (baton) {
     const { req, res, pass, data } = baton;
-    res.end('This is index');
+    const greetChild = fork('src/controllers/greet.js');
+
+    // greetChild.send('John');
+    //
+    // greetChild.on('message', greeting => {
+    //   res.end(greeting);
+    // })
+    res.end('Hello John')
   };
 }

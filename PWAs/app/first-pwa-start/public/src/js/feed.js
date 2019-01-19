@@ -30,6 +30,10 @@ shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 
+function onClickSaveButton(event) {
+  console.log('clicked')
+}
+
 function createCard() {
   var cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
@@ -40,6 +44,7 @@ function createCard() {
   cardTitle.style.height = '180px';
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement('h2');
+  cardTitleTextElement.style.color = 'white';
   cardTitleTextElement.className = 'mdl-card__title-text';
   cardTitleTextElement.textContent = 'San Francisco Trip';
   cardTitle.appendChild(cardTitleTextElement);
@@ -47,15 +52,36 @@ function createCard() {
   cardSupportingText.className = 'mdl-card__supporting-text';
   cardSupportingText.textContent = 'In San Francisco';
   cardSupportingText.style.textAlign = 'center';
+  // var saveButton = document.createElement('button');
+  // saveButton.textContent = 'Save';
+  // saveButton.addEventListener('click', onClickSaveButton);
+  // cardSupportingText.appendChild(saveButton);
   cardWrapper.appendChild(cardSupportingText);
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
+const url = 'https://httpbin.org/get';
+const receivedNetworkResp = false; // ensures not to overwrite a network resp if it's ready before the cached response
+
+fetch(url)
   .then(function(res) {
     return res.json();
   })
   .then(function(data) {
+    receivedNetworkResp = true;
     createCard();
   });
+
+// send a standby response from cache
+if('caches' in window) {
+  const getCachedResponse = async () => {
+    const response = await caches.match(url);
+    return response.json();
+  }
+  getCachedResponse()
+    .then(data => {
+      if(!receivedNetworkResp)
+        createCard();
+    });
+}

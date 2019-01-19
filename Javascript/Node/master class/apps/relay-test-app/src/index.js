@@ -10,4 +10,5 @@ app.addGlobalRunner(globalRunnerTwo);
 // app.addRoute('/', [indexRunnerOne]);
 app.addRoute('api/v1', baseRouter);
 
-app.listen(3000, () => console.log('listening now'));
+const PORT = 3000;
+app.listen(PORT, () => console.log(`listening now: localhost:${PORT}/api/v1`));

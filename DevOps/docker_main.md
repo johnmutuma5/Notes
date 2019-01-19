@@ -4,12 +4,15 @@
 - [What is an Image](#what-is-an-image)
 - [Manipulating Containers with the Docker Client](#manipulating-containers-with-the-docker-client)
   - [Overwriting default command](#overwriting-default-command)
-  - [Listing commands](#listing-commands)
+  - [Listing containers](#listing-containers)
   - [Restarting stopped containers](#restarting-stopped-containers)
   - [Removing stopped containers](#removing-stopped-containers)
   - [Stopping running containers](#stopping-running-containers)
   - [Executing commands in running containers](#executing-commands-in-running-containers)
     - [The purpose of the -it flag](#the-purpose-of-the--it-flag)
+- [Creating docker images](#creating-docker-images)
+  - [Tagging an image](#tagging-an-image)
+
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -57,6 +60,43 @@ To achieve the above, we use `docker exec -it <container_id> <command>`. i.e. `d
 #### The purpose of the -it flag
 The `-i` flag or `--interactive` keeps the `STDIN` of the container open. The `-t` or `--tty` flag allocates a pseudo-TTY to the container and attaches it to the local terminal entry point.
 
+### Getting terminal access to a running container
+We can open up a shell for a container e.g. whenever we want to run commands in the container without the need to run the `docker exec` command multiple times. To open a shell for a container, we can use the following command;
+
+`docker exec -it <container-id> sh`
+
+`sh` is the name of a program being executed inside the container. It is the shell.
+
+## Creating docker images
+We begin by creating a Dockerfile;x
+
+![](notes-images/creating-docker-file.png)
+*[img:] The basic steps in creating a Dockerfile*
+
+A simple Dockerfile for a redis container can look like this:
+
+```
+FROM alpine
+RUN apk add --update redis
+CMD ["redis-server"]
+```
+
+### Rebuilding from cache
+Docker checks through its cache when building images and ensures that for as long as the order of operations has not changed in the Dockerfile, no new images will be rebuilt but instead, the cached images will be used.
+
+### Tagging an image
+It is sometimes more convenient to refer to an image with a name and also to store versions of an image. Tagging becomes very instrumental in this. To tag an image, we build it with the `-t` flag and the convention is to specify the docker user, name of the image and version in the tag;
+
+> docker build -t <docker_user>/<image_name>:<image_version_tag> <dir_scope>
+
+e.g.
+
+> docker build -t johnmutuma5/redis:latest .
+
+NB: Note the `.` at the end of the command above specifying the Dockerfile for the build lives in the current directory whey the command is being executed.
+
+
+
 # Appendix
 ## Commands
 - `docker create <image> [<custom command>]` - create a container from an image
@@ -67,3 +107,4 @@ The `-i` flag or `--interactive` keeps the `STDIN` of the container open. The `-
 - `docker stop <container_id>` - stop a container `SIGTERM`
 - `docker kill <container_id>` - kill a container `SIGKILL`
 - `docker exec -it <container_id> <command>` - execute another command on a running container
+- `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
