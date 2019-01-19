@@ -61,10 +61,27 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
+const url = 'https://httpbin.org/get';
+const receivedNetworkResp = false; // ensures not to overwrite a network resp if it's ready before the cached response
+
+fetch(url)
   .then(function(res) {
     return res.json();
   })
   .then(function(data) {
+    receivedNetworkResp = true;
     createCard();
   });
+
+// send a standby response from cache
+if('caches' in window) {
+  const getCachedResponse = async () => {
+    const response = await caches.match(url);
+    return response.json();
+  }
+  getCachedResponse()
+    .then(data => {
+      if(!receivedNetworkResp)
+        createCard();
+    });
+}

@@ -1,5 +1,5 @@
-const STATIC_CACHE_ID = 'static-files-v2';
-const DYNAMIC_CACHE_ID = 'dynamic-v2'
+const STATIC_CACHE_ID = 'static-files-v4';
+const DYNAMIC_CACHE_ID = 'dynamic-v4'
 
 self.addEventListener('install', function(event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
@@ -41,16 +41,26 @@ self.addEventListener('activate', function(event) {
   return self.clients.claim();
 });
 
-self.addEventListener('fetch', function(event) {
-  const getResponse = async () => {
+self.addEventListener('fetch', event => {
+  const getAndCacheUrl = 'https://httpbin.org/get';
+
+  const getAndCacheResponse = async () => {
+    const response = await fetch(event.request);
+    const cache = await caches.open(DYNAMIC_CACHE_ID);
+    await cache.put(event.request, response.clone());
+    return response;
+  };
+
+  const getCacheOrNetworkResponse = async () => {
     const { request } = event;
     const cachedResponse = await caches.match(request);
     let response = cachedResponse;
     if (!response) {
       try {
+        // try to fetch the request
         response = await fetch(request);
         const cache = await caches.open(DYNAMIC_CACHE_ID);
-        await cache.put(request.url, response);
+        await cache.put(request.url, response.clone());
       } catch(err) {
         //  catch all fetch errors; we'll improve later
         cache = await caches.open(STATIC_CACHE_ID);
@@ -59,5 +69,9 @@ self.addEventListener('fetch', function(event) {
     }
     return response;
   };
-  event.respondWith(getResponse());
+
+  if (event.request.url.includes(getAndCacheUrl)) // fetch and cache the response
+    event.respondWith(getAndCacheResponse());
+  else // use cache with network fallback
+    event.respondWith(getCacheOrNetworkResponse());
 });

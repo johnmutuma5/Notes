@@ -31,6 +31,8 @@
     - [The network with cache fallback strategy](#the-network-with-cache-fallback-strategy)
     - [The cache then network strategy](#the-cache-then-network-strategy)
       - [Cache then network with offline support](#cache-then-network-with-offline-support)
+    - [Cache strategies - Routing](#cache-strategies---routing)
+    - [Placeholder files for offline support](#placeholder-files-for-offline-support)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -370,7 +372,15 @@ So far, the strategy that we have been using can be described as 'Cache with net
 This could result in a few problems especially once we're responding with cached data for requests whose responses keep changing e.g. there's new data available in the response. We'll see the workaround below.
 
 #### The cache only strategy
-This would mean blocking every request from accessing the network and try to load every from the cache. This is important for special assets but in general it is not a very appropriate strategy.
+This would mean blocking every request from accessing the network and try to load every from the cache. This is important for special assets but in general it is not a very appropriate strategy. It can also be useful for static files like CSS and JavaScript files.
+
+```js
+self.addEventListener('fetch', event => {
+  if(STATIC_FILES.includes(event.request.url)) {
+    event.respondWith(caches.match(event.request));
+  }
+});
+```
 
 #### The network only strategy
 This is the opposite of the 'cache only strategy'. It implies fetching every request from the network and completely disregarding the cache. Not a very useful strategy as this is the default behaviour without service workers.
@@ -498,3 +508,56 @@ self.addEventListener('fetch', event => {
 ```
 
 This is ideally routing; i.e. we parse the url in the request and if it fullfils a desired condition, then we prefer to fetch it and cache it, otherwise we prefer to try and respond with the cache and if that fails we fallback to the network.
+
+##### Cache strategies - Routing
+It is a common use case to want to check whether the URL caught by the fetch listener matches a certain pattern or meets certain criteria to determine which caching strategy to route the request to in the service worker.
+
+##### Placeholder files for offline support
+When fetch request is intercepted while a connection cannot be established, we can return preCached placeholder files e.g. an offline html page, a placeholder avatar for images etc.
+
+```js
+// ...
+if (!response) {
+  try {
+    // try to fetch the request
+    response = await fetch(request);
+    const cache = await caches.open(DYNAMIC_CACHE_ID);
+    await cache.put(request.url, response.clone());
+  } catch(err) {
+    //  catch all fetch errors; we'll improve later
+    cache = await caches.open('STATIC_CACHE_ID');
+
+    if (event.request.headers.get('accept').includes('text/html'))
+      response = await cache.match('/offline.html');
+
+    if (event.request.headers.get('accept').includes('image/*'))
+      response = await cache.match('/avatar.svg');
+  }
+}
+// ...
+```
+
+##### Managing the cache size
+Often time, we may want to limit the amount of elements cached especially for dynamic caching. On adding an item to the cache, it may be useful to trim the cache to ensure that we are not bursting the desirable limits.
+
+```js
+const trimCache = async (cache, limit) => {
+  let keys = await cache.keys();
+  while(keys.length > limit) {
+    await cache.delete(keys[0]);
+    keys = await cache.keys();
+  }
+}
+// ...
+if (!response) {
+  try {
+    // try to fetch the request
+    response = await fetch(request);
+    const cache = await caches.open(DYNAMIC_CACHE_ID);
+    // trim the cache
+    await trimCache(cache, 10);
+    await cache.put(request.url, response.clone());
+  }
+  // ...
+}
+```
