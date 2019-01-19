@@ -12,7 +12,15 @@
     - [The purpose of the -it flag](#the-purpose-of-the--it-flag)
 - [Creating docker images](#creating-docker-images)
   - [Tagging an image](#tagging-an-image)
-
+- [Running a real app in a docker container](#running-a-real-app-in-a-docker-container)
+  - [Creating the Dockerfile](#creating-the-dockerfile)
+    - [Noting the steps required to run the application](#noting-the-steps-required-to-run-the-application)
+    - [The initial Dockerfile](#the-initial-dockerfile)
+    - [The improved Dockerfile](#the-improved-dockerfile)
+      - [Dealing with the files missing in the container](#dealing-with-the-files-missing-in-the-container)
+    - [Sending a request](#sending-a-request)
+      - [Container PORT mapping](#container-port-mapping)
+  - [Specifying a working directory](#specifying-a-working-directory)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -68,7 +76,7 @@ We can open up a shell for a container e.g. whenever we want to run commands in 
 `sh` is the name of a program being executed inside the container. It is the shell.
 
 ## Creating docker images
-We begin by creating a Dockerfile;x
+We begin by creating a Dockerfile;
 
 ![](notes-images/creating-docker-file.png)
 *[img:] The basic steps in creating a Dockerfile*
@@ -94,6 +102,157 @@ e.g.
 > docker build -t johnmutuma5/redis:latest .
 
 NB: Note the `.` at the end of the command above specifying the Dockerfile for the build lives in the current directory whey the command is being executed.
+
+
+# Running a real app in a docker container
+Let us set up a Node.js web application with docker and use a web app client to interact with it. This is going to be a step by step guide whereby we're going to intentionally do some things wrong as is common and gradually improve the mistakes as we go on.
+
+Begin by setting up a basic Node/express application. Once we have an app that can run, we're ready to create a Dockerfile.
+
+## Creating the Dockerfile
+### Noting the steps required to run the application
+For a node.js application;
+- the first thing we need to do is to install the dependencies.
+  Command: `npm install`
+  This will require npm to be installed
+- we then run the server with `npm start`
+
+### The initial Dockerfile
+```
+# specify a base image
+FROM alpine
+
+# install dependencies
+RUN npm install
+
+# specify default command
+CMD ["npm", "start"]
+```
+
+With the Dockerfile above in the project, we can try to build the image with;
+
+> docker build .
+
+We are immediately slapped by an error of this sort `/bin/sh: npm: not found`
+
+#### The base image issue
+We are getting the error above since the base image does not have the command `npm`; it has not installed `Node Package Manager` to be able to use the command `npm`. We have two options;
+
+- Find a different base image that will pre-include `Node` and `npm`
+- Run an additional command with the RUN rule in the Dockerfile to install `Node` and `npm`
+
+For this simple example, we'll opt for the first option and in future, we're going to see how we can create such images for ourselves.
+
+For a start, a node image exists on dockerhub that we can make use of. A peek into the description of the node image, we can see that we have the option of even supplying a version number to the image e.g. `node:8.14` or even a tag for the image e.g. `node:alpine`. Usually, the alpine tag is used to load images that are their own smallest version as possible. In this case, the most stripped down node image available.
+
+### The improved Dockerfile
+```
+# specify a base image
+FROM node:alpine
+
+# install dependencies
+RUN npm install
+
+# specify default command
+CMD ["npm", "start"]
+```
+
+Now that we're guaranteed that the `node:alpine` image is going to include `npm`, we can try to build the image. If we now try to build the image, we're going to get some error messages from `npm` with regards to missing `package.json` - a file that `npm` uses to determine how to handle commands like `npm start` which is the base command of our container. This implies that even though the file may be in our project directory as it surely is, it is not available to the container; remember that a container has its own file system which has no out-of-the-box direct access to the files on our file system.
+
+#### Dealing with the files missing in the container
+The goal is to make the files required to run the application available in the container. One way to do this is to copy the needed files into the container using the `COPY` rule in the Dockerfile.
+
+We copy the build files; we need to use the COPY instruction
+
+> COPY <source> <destination>
+
+In the command, `source` refers to the path of the file/dir on the local file system and `destination` refers to the path where the file should be copied to in the container's file system.
+
+The `source` is relative to the location of the Dockerfile i.e. the Build context as specified `docker build <build_context>`. More about the relativity of the `destination` later.
+
+```
+# specify a base image
+FROM node:alpine
+
+# copy build files to the container
+COPY ./ ./
+
+# install dependencies
+RUN npm install
+
+# specify default command
+CMD ["npm", "start"]
+```
+
+We can now try building the image with this file. Optional: Let us also add a tag to our image once built;
+
+> docker build -t johnmutuma5/example-node-app .
+
+And we can try running the application:
+
+> docker run johnmutuma5/example-node-app
+
+We should get a successful behaviour with a message for successful listening if one is printed out e.g. 'listenning on PORT 8080'.
+
+### Sending a request
+Now that we have that, we can try using the browser to send a request to `http://locahost:3000`. Use the correct port for the app; it's 3000 for this example.
+
+On sending the request, the client can't reach the site!
+
+#### Container PORT mapping
+By default, no network request coming into the local computer is routed into the container's network. This is the reason the client can't access the application since it's running inside the container's network which doesn't receive the host's network requests out of the box.
+
+We need to set up explicit PORT mapping in order to ensure that requests coming through a specified PORT on the host are directed to a specified PORT in the container.
+
+**NB:** *This is a limitation for incoming traffic and not outgoing requests from the container as we already so that the container can send requests successfully e.g. when installing dependencies.*
+
+PORT forwarding is a runtime constraint i.e. it is determined when running the container and not when building the snapshot/image. We therefore don't set it up in the Dockerfile.
+
+We publish the PORT with the `-p` flag in the `docker run` command;
+
+> docker run -p 3000:3000 johnmutuma5/example-node-app
+
+The to and fro ports do not have to be identical; you can for instance redirect 8080 on localhost to 3000 on the container such that requests coming through PORT 8080 will be redirected to PORT 3000 in the container;
+
+> docker run -p 8080:3000 johnmutuma5/example-node-app
+
+### Specifying a working directory
+A working directory is specifies the directory in the container in which the commands will be run including COPY, RUN and CMD. On running COPY, the destination path is set relative to the specified working directory.
+
+Right now, as we have already copied the node app build files without specifying a working directory, the path becomes relative to the root directorty of the container. Issuing an `ls` in the container's shell, we can see these files lying there amongst other files of the container's file system.
+
+We can fireup the container's shell by overwriting the default container command in the run command for an image as seen [earlier](#overwriting-default-command);
+
+> docker run -it johnmutuma5/example-node-app sh
+
+After running the above, we get into the container's shell and we can run shell commands for the container. Running the `ls`  command to see the list of files and directories, this is what we may get;
+
+![](notes-images/container-files.png)
+
+Note how our project files are scattered in the the root directory! This is definitely not the best practice as we may accidentally overwrite the key filesysystem files in the container.
+
+To solve this, we can pass declare the `WORKDIR` instruction specifying the working directory. All subsequent commands will be executed in the container relative to the directory!
+
+NB: We don't have to pre-create the folder in the container. If the specified path does not exist, it'll be automatically created during the build by that instruction.
+
+```
+# specify a base image
+FROM node:alpine
+
+# specify a working directory
+WORKDIR /usr/app
+
+# copy build files to the container
+COPY ./ ./
+
+# install dependencies
+RUN npm install
+
+# specify default command
+CMD ["npm", "start"]
+```
+
+The `WORKDIR` not only affects the commands run in the Dockerfile, but also the commands executed in future with `docker exec` and custom commands with `docker run`. For instance, running `docker exec -it <container_id> sh` will fireup the shell in the `WORKDIR`.
 
 
 
