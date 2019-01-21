@@ -33,6 +33,9 @@
       - [Cache then network with offline support](#cache-then-network-with-offline-support)
     - [Cache strategies - Routing](#cache-strategies---routing)
     - [Placeholder files for offline support](#placeholder-files-for-offline-support)
+- [The IndexedDB](#the-indexeddb)
+  - [Caching dynamic content](#caching-dynamic-content)
+  - [Introducing the IndexedDB](#introducing-the-indexeddb)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -561,3 +564,26 @@ if (!response) {
   // ...
 }
 ```
+
+
+# The IndexedDB
+The cache API is execellent for caching assets e.g. script files, css files, images etc. We can also cache data received from the server but it is best cached in the IndexedDB.
+
+## Caching dynamic content
+
+Caching dynamic content is different from dynamic caching in that while the latter is best for caching assets once they have been fetched, the former is meant for caching data usually data fetched from the server in JSON format(key-value pairs). The IndexedDB is a Key-Value pairs database and hence best suited for caching data of such nature.
+
+![](notes-images/caching-dynamic-content-vs-dynamic-caching.png)
+*[img: Courtesy of Academind]*
+
+## Introducing the IndexedDB
+A few features of the IndexedDB;
+
+- It is a transactional Key-Value pairs database i.e. if one of the operations in a given transaction fails, none of the operations are applied
+- We could also store a significant amount of data including Files and Blobs
+- It can also be accessed asynchronously
+- It can also be accessed via usual JavaScript code and also from service workers
+
+The difference with Local Storage and Session Storage is that both of these are read synchronously; hence, they cannot be used in service workers.
+
+## Storing data in the IndexedDB
