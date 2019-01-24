@@ -36,6 +36,8 @@
 - [The IndexedDB](#the-indexeddb)
   - [Caching dynamic content](#caching-dynamic-content)
   - [Introducing the IndexedDB](#introducing-the-indexeddb)
+- [Background sync](#background-sync)
+  - [How it works](#how-it-works)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -587,3 +589,11 @@ A few features of the IndexedDB;
 The difference with Local Storage and Session Storage is that both of these are read synchronously; hence, they cannot be used in service workers.
 
 ## Storing data in the IndexedDB
+To Revisit soon
+
+
+# Background sync
+## How it works
+Service workers are good for caching request responses. That means that we can cache the responses of POST requests but we can't cache the requests themselves for sending at a later point in time. We, however, can use the service worker to register a synchronous task. We need to then store the data associated to the request with the IndexedDB. Once a connection is re-stablished, the request can be handled by a 'sync' event based on how we have instructed the service worker. This will even work even if the browser got closed.
+
+![](notes-images/background-sync-how.png)
