@@ -132,14 +132,27 @@ const hash = crypto.createHmac('sha256', <hashSecret>).update(<str>).digest('hex
 We can send requests with `http.request(<requestObj>, <callback>)`
 
 ```js
+const querystring = require('querystring');
+
+const stringPayload = querystring.stringify({msg: 'Hello world'});
+
 const reqObj = {
-  protocol: 'https',
+  protocol: 'https:', // not the colon
   hostname: 'test.io',
+  path: '/path/to/endpoint',
   method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': Buffer.byteLength(stringPayload)
+  }
 };
 
 const req = https.request(reqObj, res => {
-  console.log(res);
+  const { statusCode: status } = res;
+  if (status == '200' || status == '201')
+    // return handle success
+  else
+    // return handle others
 });
 
 req.on('error', err => {
@@ -147,4 +160,52 @@ req.on('error', err => {
 });
 
 req.end();
+```
+
+### Using zlib to compress files
+A basic example of using the `zlib` module to compress a string and store it in a file
+
+```js
+const zlib = require('zlib');
+const fs = require('fs');
+const path = require('path');
+
+const BASE_DIR = path.join(__dirname, '../path/to/dir/to/write/to');
+
+
+zlib.gzip('An input string to compress', (err, buffer) => {
+  if(!err && buffer) {
+    // we can write the string version of the buffer to a text file
+    fs.open(BASE_DIR + 'myFileName.gz.b64', 'wx', (err, fileDescriptor) => {
+      if(!err && fileDescriptor) {
+        fs.writeFile(fileDescriptor, buffer.toString('base64'), err => {
+          if(err) {
+            // handle error
+          }
+          fs.close(fileDescriptor, err => {
+            if(!err) {
+              // handle close error
+            } else {
+              // handle success write and close
+            }
+          })
+        })
+      }
+    })
+  }
+})
+
+
+
+/// to decomporess
+
+const compressedString = fs.readFile('/path/to/myFileName.gz.b64', 'utf8', (err, str) => {
+  const inputBuffer = Buffer.from(str, 'base64');
+  zlib.unzip(inputBuffer, (err, outputBuffer) => {
+    if (!err && outputBuffer) {
+      const str = outputBuffer.toString();
+      // handle str
+    }
+  })
+})
 ```

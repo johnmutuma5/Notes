@@ -1,16 +1,42 @@
 # Table of Contents
-- [Measures of central tendency](#measures-of-central-tendency)
-- [Measures of Asymmetry](#measures-of-asymmetry)
-  - [Skewness](#skewness)
-- [Measures of variability](#measures-of-variability)
-  - [Univariate measures](#univariate-measures)
-    - [Variance](#variance)
-    - [The standard deviation](#the-standard-deviation)
-    - [Coefficient of variation](#coefficient-of-variation)
-  - [Multivariate measures](#multivariate-measures)
-    - [Covariance](#covariance)
-    - [Correlation coefficient](#correlation-coefficient)
+- [Introduction](#introduction)
+- [Using data to think about the future](#using-data-to-think-about-the-future)
+  - [Predictive analytics](#predictive-analytics)
+  - [Traditional data science methods in analytics](#traditional-data-science-methods-in-analytics)
+  - [Machine Learning data science methods in analytics](#machine-learning-data-science-methods-in-analytics)
+    - [Types of machine learning](#types-of-machine-learning)
+    - [Techniques used](#techniques-used)
+- [Popular data Science tools](#popular-data-science-tools)
+- [Characteristics of data (5Vs)](#characteristics-of-data-5vs)
+- [Statistics](#statistics)
+  - [Population and Sample](#population-and-sample)
+  - [Descriptive Statistics](#descriptive-statistics)
+    - [Classification of Data](#classification-of-data)
+      - [Based on type](#based-on-type)
+      - [Based on levels of measurement](#based-on-levels-of-measurement)
+    - [Visualising data](#visualising-data)
+      - [Categorical(Nominal and Ordinal) variables visualisation techniques](#categoricalnominal-and-ordinal-variables-visualisation-techniques)
+      - [Numeric(Ratios and Intervals) variables visualisation techniques](#numericratios-and-intervals-variables-visualisation-techniques)
+    - [Measures of central tendency](#measures-of-central-tendency)
+      - [The mean](#the-mean)
+      - [The mode](#the-mode)
+      - [The median](#the-median)
+    - [Measures of Asymmetry](#measures-of-asymmetry)
+      - [Skewness](#skewness)
+    - [Measures of variability](#measures-of-variability)
+      - [Univariate measures](#univariate-measures)
+        - [Variance](#variance)
+        - [The standard deviation](#the-standard-deviation)
+        - [Coefficient of variation](#coefficient-of-variation)
+      - [Multivariate measures](#multivariate-measures)
+        - [Covariance](#covariance)
+        - [Correlation coefficient](#correlation-coefficient)
+  - [Inferential statistics](#inferential-statistics)
+    - [Distributions](#distributions)
+      - [The normal distribution](#the-normal-distribution)
+        - [Standardising the normal distribution](#standardising-the-normal-distribution)
 
+# Introduction
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
 - raw facts
@@ -187,11 +213,12 @@ These are best visualised with:
 
 #### Numeric(Ratios and Intervals) variables visualisation techniques
 
-- Histogram: when visualising Numeric data on a Histogram, it only makes sense when we group the items into ranges. It is recommended that we use 5 to 20 number of ranges. The interval width can be computed as follows:
+- Histogram: when visualising Numeric data on a Histogram, it only makes sense when we group the items into ranges. It is recommended that we use 5 to 20 number of ranges. The interval width can be computed as follows. It is useful when visualising data asymmetry:
   ```
   number of intervals = (max_value - min_value)/diserable_no_of_intervals
   ```
-  it is more common to plot a Histogram with the relative frequencies rather than the absolute frequencies.
+  it is more common to plot a Histogram with the relative frequencies rather than the absolute frequencies
+- Frequency Distribution Table/Graph - this is well applicable if the numeric data is discrete. Unlike the Histogram, this doesn't bundle data together into ranges and some information like the `mode` of the data can be seen
 - Cross Tables:
 - Scatter plots:
 
@@ -286,6 +313,60 @@ Correlation adjusts covariance so that the relationship between the two variable
 The value can range between -1 and 1 with the former indicating perfect negative correlation between the two variables at all and the latter being an indication of perfect positive correlation. A coefficient of 0 is an indication of lack of correlation between the two variables.
 
 It is also important to understand the direction of causal relationships. For now, we should understand that correlation does not imply causation.
+
+### Further notes
+You may find more notes on the topic of descriptive statistics [here](resources/descriptive_statistics.pdf)
+
+### Exercise
+You may want to checkout the suggested assignment [here](resources/real_estate_data.xlsx) for practise.
+
+
+## Inferential statistics
+Inferential statistics refers to statistical methods that rely on the Probability Theory and Distributions, in particular, to predict population values from sample data.
+
+### Distributions
+A distribution is a function that shows the possible values for a variable and how often they occur.
+
+e.g. The Discrete Uniform Distribution where each element has an equal chance of occurring.
+
+There are various types of distributions including; binomial, poisson, geometric, normal, discrete uniform, etc. These notes will concentrate on the Normal and Student's T distributions due to the following reasons;
+
+- They approximate a wide variety of random variables
+- Distribution of sample means with large enough sample sizes could be approximated to normal
+- All computable statistics are elegant
+- Decisions based on normal distribution insights have a good track record
+
+More on these as we proceed.
+
+#### The normal distribution
+![](notes-images/a_normal_distribution.png)
+*[img] A simple normal distribution*
+
+It can be expressed as;
+
+[normal_dist_expr]: notes-images/normal_dist_expr.png
+![][normal_dist_expr]
+
+The statistical term for this is the Gaussian Distribution and most people also refer to it as the `bell curve` due to its shape.
+
+It is symmetrical and its mean, median and mode are equal. It has no skew and it's perfectly centered around its mean. The standard deviation, at 140, determines the spread of the curve.
+
+##### Standardising the normal distribution
+Standardising a variable involves transforming it its values into values that will have a mean of zero and a standard deviation of 1.
+
+It involves mapping from;
+
+![][normal_dist_expr]
+
+to;  
+
+![](notes-images/standardised_norm_dist_expr.png)
+
+To do that we standardise every observation of the variable using the mean and the standard deviation. The result for each observation is what is referred to as a `z-score`. The following formula allows us to standardise the observations of normal distribution variable;
+
+![](notes-images/standardisation_formula.png)
+
+The resultant values are a standardised normal distribution of the values of the variable at hand. We'll see how using a standardised normal distribution of a variable makes predictions easier for us.
 
 
 
