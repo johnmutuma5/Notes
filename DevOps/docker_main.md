@@ -21,6 +21,12 @@
     - [Sending a request](#sending-a-request)
       - [Container PORT mapping](#container-port-mapping)
   - [Specifying a working directory](#specifying-a-working-directory)
+- [Docker compose](#docker-compose)
+  - [Assembling a docker file](#assembling-a-docker-file)
+  - [Introducing Docker Compose](#introducing-docker-compose)
+    - [Docker compose files](#docker-compose-files)
+    - [Networking with docker compose](#networking-with-docker-compose)
+    - [Docker compose commands](#docker-compose-commands)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -204,7 +210,7 @@ By default, no network request coming into the local computer is routed into the
 
 We need to set up explicit PORT mapping in order to ensure that requests coming through a specified PORT on the host are directed to a specified PORT in the container.
 
-**NB:** *This is a limitation for incoming traffic and not outgoing requests from the container as we already so that the container can send requests successfully e.g. when installing dependencies.*
+**NB:** *This is a limitation for incoming traffic and not outgoing requests from the container as we already saw that the container can send requests successfully e.g. when installing dependencies.*
 
 PORT forwarding is a runtime constraint i.e. it is determined when running the container and not when building the snapshot/image. We therefore don't set it up in the Dockerfile.
 
@@ -254,6 +260,93 @@ CMD ["npm", "start"]
 
 The `WORKDIR` not only affects the commands run in the Dockerfile, but also the commands executed in future with `docker exec` and custom commands with `docker run`. For instance, running `docker exec -it <container_id> sh` will fireup the shell in the `WORKDIR`.
 
+
+# Docker compose
+We are going to illustrate by how to use multiple containers with Docker compose by running a Node application container and a Redis container together.
+
+The code for the Node application can be found [here](example-multi-containers).
+
+## Assembling a docker file
+We can have a Dockerfile for the Node application part of the equation. i.e. this will have nothing to do with the setup for Redis.
+
+```
+FROM node:alpine
+
+WORKDIR /app
+
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "start"]
+```
+
+With this, we can build an image with `docker build -t johnmutuma5/visits.`. We get an image tagged `johnmutuma5/visits:latest`.
+
+## Introducing Docker Compose
+We can try running the image, we will immediately get an error with regards to Redis not being installed. This is because our application is attempting to run with a Redis client while none exists in the container. To illustrate Docker Compose, we are going to focus on setting up a separate container running a Redis server.
+
+We can just run `docker run redis` to download and run a Redis container from dockerhub. Once that is done, running the Node application container throws the same initial redis error. This is because, even though, we have a Redis container running, there is no communication infrastructure setup between the Node application container and the Redis container.
+
+We have two options:
+
+- We can make use of the Docker CLI to run commands that set up the networking infrastructure. This is impractical as it will involve a handful of commands that we'll have to run every time we want to start up a container.
+
+- Using Docker Compose;
+  - This is a **separate** CLI tool that gets installed along with Docker
+  - It is used to start up multiple containers at a go
+  - Automates some of the long-winded commands that we're passing to  `docker run`
+
+  You can try running `docker-compose` on your terminal and you should see a bunch of commands that we can run.
+
+
+### Docker compose files
+This is a `.yml` file in which we can put the same commands that we have been running in the terminal; but we write these commands in the file with a special `.yml` syntax. We then pass this file to the `Docker Compose ` CLI for processing.
+
+![](notes-images/docker-compose-psuedo-code.png)
+*[img] illustrates the pseudo-code for creating a Docker Compose file for our Node and Redis containers*
+
+### Some elements of the docker compose file
+
+|element      |isRequired|purpose| type  |
+|:------------|:--------:|:------|:------|
+|version      | True     | Specifies the version of docker-compose that we are intending to use e.g. '3'| String |
+|services     | True     | Ideally, this spells out the containers that we're going to run. In this element, we specify the containers to run and their appropriate; images or build context(if building locally) and PORT mappings. These also act as hostnames for the container| Mapping |
+
+### Networking with docker compose
+By running containers with docker compose, they are run as services on the same network and they can be able to exchange information without bounds and without us having to manually specify with PORTS an infrastructure for allowing two containers to communicate; docker-compose does that for us.
+
+The only PORT mapping we have defined in the file below is to allow the local machine to have access to the service by making requests on PORT 4001; which, according to our PORT mapping, will be handled by whichever application is running on PORT 8081 in the container.
+
+```
+# docker-compose.yml
+version: '3'
+services:
+  redis-server:
+    image: 'redis'
+  node-app:
+    build: .
+    ports:
+      - "4001:8081"
+```
+
+As mentioned in the table above, the services act as hostnames for the containers; this means that we can use them in places where hostname is required. e.g. DATABASE_URLs like `postgres://postgres:postgress@<hostname>/<database-name>`; if we had a service called 'the-database' running a Postgres container with a database called 'dev-db', the URL would become `postgres://postgres:postgress@the-database/dev-db`.
+
+In our Node application, we need to configure the Redis client to point it to the correct host for the Redis server.
+
+```js
+import redis from 'redis';
+
+const client = redis.createClient({
+  host: 'redis-server'
+})
+```
+### Docker compose commands
+- `docker-compose up` - attempts to run all the services in the `docker-compose.yml` file. It is the multi-container equivalent of `docker run` for a single container
+
+- `docker-compose up --build` - runs all the containers but ensures to try and rebuild them before running. This is useful to ensure that we get the latest changes in files
 
 
 # Appendix
