@@ -35,6 +35,10 @@
     - [Distributions](#distributions)
       - [The normal distribution](#the-normal-distribution)
         - [Standardising the normal distribution](#standardising-the-normal-distribution)
+      - [The central limit theorem](#the-central-limit-theorem)
+      - [The standard error](#the-standard-error)
+    - [Confidence intervals](#confidence-intervals)
+      - [Determining a confidence interval](#determining-a-confidence-interval)
 
 # Introduction
 ## Techniques for working with traditional data
@@ -281,11 +285,11 @@ This is also called the `Relative standard deviation`. It is the fraction of the
 
 ![Population Coeff Var](notes-images/pop_coeff_var.png)
 
-*[img] Population standard deviation* 👆🏽
+*[img] Population relative standard deviation* 👆🏽
 
 ![Sample Coeff Var](notes-images/sample_coeff_var.png)
 
-*[img] Sample standard deviation*
+*[img] Sample relative standard deviation*
 
 This is perfect for comparing variance between different data.
 
@@ -367,6 +371,70 @@ To do that we standardise every observation of the variable using the mean and t
 ![](notes-images/standardisation_formula.png)
 
 The resultant values are a standardised normal distribution of the values of the variable at hand. We'll see how using a standardised normal distribution of a variable makes predictions easier for us.
+
+#### The central limit theorem
+This implies that regardless of the distribution of a dataset, the distribution of the mean, gotten by picking several samples from the dataset, tends to be a normal distribution. The mean of the samples means tend to equal the original mean and the variance tends to equal the original variance divided by the sample size.
+
+The sampling distribution can be expressed as follows;
+
+![](notes-images/the-sampling-distribution.png)
+
+#### The standard error
+The standard error is the standard deviation of the distribution of sample means. i.e. the standard deviation of the sampling distribution.
+
+With the expression of the sampling distribution above, we can therefore express the standard error as follows;
+
+[stderr]: notes-images/standard-error.png
+
+![][stderr]
+
+
+i.e. the square root of the variance of the distribution. It shows the variability of the means of the different samples we have extracted from a population.
+
+This is a very important measure as it shows how well the true mean was approximated. It decreases as the sample size increases.
+
+### Confidence intervals
+This refers to the range in which we'd expect a population parameter to fall within with a certain percentage level of confidence.
+
+
+#### Determining a confidence interval
+This can be computed in two ways;
+- When either the population variance or standard deviation is known
+- When either the population variance or standard deviation is unknown
+
+When the population variance is known;
+
+We can compute the confidence interval by taking the sample mean and accounting for the standard error factored with an element of confidence. i.e. the standard error multiplied by a confidence factor which can be gotten from the table of `z-scores`.
+
+We begin by choosing a confidence level with which we'd state our results. Common confindence levels are 90%, 95% and 99%; i.e. .90, .95, .99 with corresponding alpha values of .10, .05 and .01 respectively. We can get the confidence factor, i.e. z-score, for a confidence level by looking for the area under the curve that is equal to; `(CL/100) + (alpha/2)` or `1-(alpha/2)` e.g. for a Confidence Level of 95%, get the z value that corresponds to `1 - (.05/2) = .975`. This results to a z value `1.96`. With that in mind, we can compute the confidence interval with the following expression;
+
+![](notes-images/lower-confidence-limit.png)
+![](notes-images/upper-confidence-limit.png)
+
+**An example;**
+
+Consider we would like to find a confidence interval for the salaries of Data Scientists in region. We happen to be aware that the standard deviation of the population is `$15,000`. We take 30 samples and determine their individual means. Calculate the mean of those samples means and it results to `$100,200`. Let us determine at a confidence level of 95% what the average salary would be.
+
+*Solution:*
+
+The confidence factor(z-value):
+
+Reading from the table of z-scores, the value that corresponds to `1 - (.05/2) = .975` is `1.96`
+
+The standard error. i.e. the standard deviation of the samples' means; ![][stderr]
+
+We compute the standard error as `15000 / sqrt(30)` = `2,739`.
+
+We can go ahead and compute the upper limit;
+
+upper limit = `100,200 + (1.96 * 2739)` = `$105,568`;
+
+lower limit = `100,200 - (1.96 * 2739)` = `$94,833`;
+
+*Conclusion*
+
+With these results, we can make a conclusion that with a confidence level of 95%, the average salary of Data Scientists is going to fall between `$94,833` and `$105,568`.
+
 
 
 
