@@ -12,6 +12,7 @@
 - [who whoami tty which](#who-whoami-tty-which)
 - [Calendar date and time commands](#calendar-date-and-time-commands)
 - [vi editor](#vi-editor)
+  - [Some commands](#some-commands)
 
 # Contents of these notes
 These notes will cover the following aspects;
@@ -224,3 +225,16 @@ To prevent overwriting other files, we can issue the command in interactive mode
 - The time command; this is not used to display the current time. It is used to display information with regards to how long a command takes to execute e.g. `time ls`, `time node index.js` etc.
 
 # vi editor
+The vi editor runs in edit mode and command mode.
+
+The edit mode allows us to input text into the open file where as the command mode allows us to issue commands to the editor with regards to manipulating the contents of the file.
+
+## Some commands
+- `o` (open) - hitting the letter `o` in command mode adds a new line below the current location of the cursor and opens the edit mode in place
+- `dd` (delete) - deletes the line in which the cursor currently stands. You can preceed it with a number to specify a count of lines to delete. e.g. `3dd` to delete three lines
+- `dw` (delete word) - deletes the characters to the right of the cursor upto and inclusive of the first white space character. Similarly, `3dw` deletes 3 words and so forth
+- `x` - deletes one character at a time to the right of the cursor, and if there's no character to the right, it deletes the one to the left of the cursor
+- `yy` (yank) - this copies the line at the current location of the cursor
+- `p` - this pastes the line in the clipboard. It can be preceeded by the yanking command above to achieve the copy-and-paste effect
+- `u` (undo/revert) - undos the most current changes
+- `:set nu` - in command mode hitting `:` and typing the command `set nu` displays the line numbers. These can be hidden by hitting `:` then issuing the command `set nonu`

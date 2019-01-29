@@ -35,10 +35,13 @@
     - [Distributions](#distributions)
       - [The normal distribution](#the-normal-distribution)
         - [Standardising the normal distribution](#standardising-the-normal-distribution)
-      - [The central limit theorem](#the-central-limit-theorem)
-      - [The standard error](#the-standard-error)
-    - [Confidence intervals](#confidence-intervals)
-      - [Determining a confidence interval](#determining-a-confidence-interval)
+        - [The central limit theorem](#the-central-limit-theorem)
+        - [The standard error](#the-standard-error)
+        - [Confidence intervals](#confidence-intervals)
+          - [Determining a confidence interval](#determining-a-confidence-interval)
+      - [The student's T distribution](#the-students-t-distribution)
+        - [Confidence intervals with population variance unknown](#confidence-intervals-with-population-variance-unknown)
+
 
 # Introduction
 ## Techniques for working with traditional data
@@ -372,14 +375,14 @@ To do that we standardise every observation of the variable using the mean and t
 
 The resultant values are a standardised normal distribution of the values of the variable at hand. We'll see how using a standardised normal distribution of a variable makes predictions easier for us.
 
-#### The central limit theorem
+##### The central limit theorem
 This implies that regardless of the distribution of a dataset, the distribution of the mean, gotten by picking several samples from the dataset, tends to be a normal distribution. The mean of the samples means tend to equal the original mean and the variance tends to equal the original variance divided by the sample size.
 
 The sampling distribution can be expressed as follows;
 
 ![](notes-images/the-sampling-distribution.png)
 
-#### The standard error
+##### The standard error
 The standard error is the standard deviation of the distribution of sample means. i.e. the standard deviation of the sampling distribution.
 
 With the expression of the sampling distribution above, we can therefore express the standard error as follows;
@@ -393,11 +396,11 @@ i.e. the square root of the variance of the distribution. It shows the variabili
 
 This is a very important measure as it shows how well the true mean was approximated. It decreases as the sample size increases.
 
-### Confidence intervals
+##### Confidence intervals
 This refers to the range in which we'd expect a population parameter to fall within with a certain percentage level of confidence.
 
 
-#### Determining a confidence interval
+###### Determining a confidence interval
 This can be computed in two ways;
 - When either the population variance or standard deviation is known
 - When either the population variance or standard deviation is unknown
@@ -427,13 +430,76 @@ We compute the standard error as `15000 / sqrt(30)` = `2,739`.
 
 We can go ahead and compute the upper limit;
 
-upper limit = `100,200 + (1.96 * 2739)` = `$105,568`;
-
 lower limit = `100,200 - (1.96 * 2739)` = `$94,833`;
+
+upper limit = `100,200 + (1.96 * 2739)` = `$105,568`;
 
 *Conclusion*
 
 With these results, we can make a conclusion that with a confidence level of 95%, the average salary of Data Scientists is going to fall between `$94,833` and `$105,568`.
+
+#### The student's T distribution
+This is a distribution that was introduced by a statistical researcher William Gosset, as Student, while working for the brewery of Guinness; to find the best yeilding varieties of berly. He found big samples tedious and he wanted to find ways of extracting small samples and yet come up with meaningful and reliable findings.
+
+Ronald Fischer introduced William Gosset's T Statistic.
+
+It is one of the biggest breakthroughs in statistics as it allowed;
+- inference into small samples
+- unknown population variance
+
+Visually, it looks much like a normal distribution, but have fatter tails. Fatter tails allow for a higher dispersion of variables and there's more uncertainy.
+
+As we have the `z-statistic` for normal distribution, the `t-statistic` corresponds to the T Distribution. It's expression is also quite similar to that of the `z-statistic`;
+
+![](notes-images/student's-t-formulae.png)
+
+This can be read as the `t` value for `n-1` degrees of freedom and a significance level of `alpha`. The degrees of freedom are usually the sample size less one, ` n-1`.
+
+Much like the normal distribution's table of `z-scores`, we also have the `t-table`.
+
+
+##### Confidence intervals with population variance unknown
+Even with an unkwown population variance, we can still make predictions.
+
+Let's consider an example similar to the previous Data Scientists salaries;
+
+**Example**
+
+Consider that we take nine different samples from a population and find find their means. If on computing the means of these means we get a value of `$92,533`. We head on to calculate the Standard Deviation of the means and we get a value of `$13,932`.
+
+From that information, we can compote the standard error of the sampling distribution, and choose a Confidence Interval Level that will yield a `t` statistic from the `t-table`.
+
+Let us choose a common Confidence Interval Level of 95% like we used in the previous example and compare the results.
+
+**Solution**
+
+From the `t` formulae, we can deduce the confidence interval formulae as follows;
+
+![](notes-images/confidence-interval-t-stat.png)
+
+Notice how this is similar to the Confidence Interval for the know population variance with `z` scores; we have substituted the population standard error for the sample standard error and the `z` statistic for the `t` statistic.
+
+From the t-table, we can read the value that corresponds to `n-1` = 8 degrees of freedom and significance level of `(100-95) / 2` = 2.5% = 0.025. This yields a value of 2.32. Let's go ahead and findthe standard error for the sampling distribution with the formulae. This yields `13,932 / sqrt(9)` = 4,644.
+
+|item                   | value          |
+|:----------------------|:--------------:|
+|sample mean            | 92,533         |
+|sample std error       | 4,644          |
+|t-value CI(95%) 8d.f   | 2.32           |
+
+Lower limit = `92533 - (2.32 * 4,644) = 81,806`
+
+Upper limit = `92533 + (2.32 * 4,644) = 103,261`
+
+**Conclusion**
+
+The Data Scientists salary is expected to be in the range of `$81,806` and `$103,261` at 8d.f and a confidence level of 95%.
+
+As we can observe, the width of the second range outcome is much broader than when we had a known population variance. Two factors majorly contribute to this effect;
+- The sample size is much smaller at size 9
+- The population variance is not known at all
+
+With these, we rightfully do expect higher levels of uncertainy, leading to a broader confidence interval range.
 
 
 
