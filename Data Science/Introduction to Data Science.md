@@ -41,7 +41,13 @@
           - [Determining a confidence interval](#determining-a-confidence-interval)
       - [The student's T distribution](#the-students-t-distribution)
         - [Confidence intervals with population variance unknown](#confidence-intervals-with-population-variance-unknown)
-
+  - [Hypothesis Testing](#hypothesis-testing)
+    - [Rejection region and significance levels](#rejection-region-and-significance-levels)
+    - [Errors in hypothesis testing](#errors-in-hypothesis-testing)
+      - [Type I error](#type-i-error)
+      - [Type II error](#type-ii-error)
+    - [Test for mean](#test-for-mean)
+      - [Population variance known](#population-variance-known)
 
 # Introduction
 ## Techniques for working with traditional data
@@ -501,7 +507,49 @@ As we can observe, the width of the second range outcome is much broader than wh
 
 With these, we rightfully do expect higher levels of uncertainy, leading to a broader confidence interval range.
 
+_You may want to check out [this dataset](resources/confidence-intervals-exercise.xlsx) on shoe sales for a little exploration with confidence intervals._
 
+_Check out more notes on inferential statistics [here](resources/inferential-statistics.pdf)._
+
+## Hypothesis testing
+A hypothesis is basically an idea that can be tested.
+
+In hypothesis testing, we have the Null Hypothesis (H0) and the Alternative Hypothesis(H1). The Null Hypothesis is the postulation to be tested and the alternative hypothesis is everything else. e.g. If a statement is 'The average salary of a Data Scientist is $113,000'. The null hypothesis is that that is true and the alternative hypothesis is that it is false.
+
+We would run a test to determine if the expected population mean is close enough to the postulated value, and if so, we can accept the null hypothesis or otherwise.
+
+The null hypothesis is the statement we're trying to reject and the alternative hypothesis is the personal opinion that can be proved.
+
+### Rejection region and significance levels
+The significance level is the probability of rejecting the null hypothesis when it is true. It is denoted by `alpha`. It is a value that you select based on the certainty you need. Typical values are usually, .01, .05 and .1.
+
+Hypothesis testing usually follows the following three broad steps;
+
+- Calculate the statistic e.g. the mean
+- Scale (Standardise) it with e.g. the z-score
+- Check if the z-score is within the rejection area or not
+
+### Errors in hypothesis testing
+There are Type I and Type II errors in hypothesis testing.
+
+#### Type I error
+This is when we reject a true null hypothesis. It is also called a false positive.
+
+### Type II error
+This occurs when we accept a false null hypothesis. It also called a false negative.
+
+### Test for mean
+#### Population variance known
+We can compute the standardised value and look up from the `z-table` for comparison.
+
+To do a hypothesis testing on the postulation that the average salary of a Data Scientist is 113,000, we proceed by computing the sample mean standardising the postulated mean based on that. The z- value obtained is then compared by the z-value of the significance level; keeping in mind that this is a two tailed test, we can use `(significance level) ÷ 2`.
+
+#### The p value
+The p value is the smallest significance level at which we can still reject the null hypothesis, given the observed sample statistic. If the chosen significance level is more than the p-value, then we can reject the null hypothesis.
+
+We can look up the Z-area that corresponds to the z-score(critical value). The p value is a universal concept that works for all distributions.
+
+You can find some more notes on Hypothesis testing [here](resources/hypothesis_testing.pdf)
 
 
 ## Appendix
