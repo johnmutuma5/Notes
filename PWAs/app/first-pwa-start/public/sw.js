@@ -46,6 +46,7 @@ self.addEventListener('activate', function (event) {
   event.waitUntil(
     caches.keys()
       .then(function (keyList) {
+        // remove the old cache once another one has installed
         return Promise.all(keyList.map(function (key) {
           if (key !== CACHE_STATIC_NAME && key !== CACHE_DYNAMIC_NAME) {
             console.log('[Service Worker] Removing old cache.', key);

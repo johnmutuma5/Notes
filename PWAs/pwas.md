@@ -36,8 +36,11 @@
 - [The IndexedDB](#the-indexeddb)
   - [Caching dynamic content](#caching-dynamic-content)
   - [Introducing the IndexedDB](#introducing-the-indexeddb)
+  - [Wrapping the IndexedDB with idb](#wrapping-the-indexeddb-with-idb)
 - [Background sync](#background-sync)
   - [How it works](#how-it-works)
+  - [Registering the sync manager](#registering-the-sync-manager)
+  - [Storing the data in IndexedDB](#storing-the-data-in-indexeddb)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -588,8 +591,29 @@ A few features of the IndexedDB;
 
 The difference with Local Storage and Session Storage is that both of these are read synchronously; hence, they cannot be used in service workers.
 
+## Wrapping the IndexedDB with idb
+The IndexedDB uses the callbacks approach. `idb` is a tiny package that wraps the IndexedDB in order to allow us to make use of JavaScript promises when working with the IndexedDB. To use it, we simply need to import it into the application.
+
+To use this in the Service worker, we need to import it. The service workers have the `importScripts` utility that will enable us to import other scripts.
+
+```js
+// ...
+importScripts('/path/to/idb.js');
+// ...
+```
+
+It would also be necessary to add the file in the Static cache so that it can be loaded in offline mode as well.
+
+```js
+cache.addAll([
+  // ...
+  '/path/to/idb.js',
+  // ...
+])
+```
+
 ## Storing data in the IndexedDB
-To Revisit soon
+
 
 
 # Background sync
@@ -597,3 +621,26 @@ To Revisit soon
 Service workers are good for caching request responses. That means that we can cache the responses of POST requests but we can't cache the requests themselves for sending at a later point in time. We, however, can use the service worker to register a synchronous task. We need to then store the data associated to the request with the IndexedDB. Once a connection is re-stablished, the request can be handled by a 'sync' event based on how we have instructed the service worker. This will even work even if the browser got closed.
 
 ![](notes-images/background-sync-how.png)
+*[img: Courtesy of Academind]*
+
+## Registering the sync manager
+Let us imagine that we have a form that users fill in with data to post. On the submit handler of the form, we can register a sync manager such that incase the user is offline, or they perhaps close the browser immediately on hitting a submit button before the post has completed, they background synchronisation can take up the task of ensuring that the post request will be sent out whenever it's possible.
+
+```js
+const registerSyncManager = async () =>  {
+  if('ServiceWorker' in navigator && 'SyncManager' in window) {
+    const serviceWorker = await navigator.serviceWorker.ready;
+    // choose any name of your liking for the registration identity of the sync manager, e.g. sync-new-post
+    serviceWorker.sync.register('sync-new-post');
+  }
+}
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  // we should do some form validation here
+  // register a sync manager, ensuring browser support
+  registerSyncManager();
+});
+```
+
+## Storing the data in IndexedDB
