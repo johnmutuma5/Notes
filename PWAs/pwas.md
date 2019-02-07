@@ -37,10 +37,12 @@
   - [Caching dynamic content](#caching-dynamic-content)
   - [Introducing the IndexedDB](#introducing-the-indexeddb)
   - [Wrapping the IndexedDB with idb](#wrapping-the-indexeddb-with-idb)
+  - [Storing the data in IndexedDB](#storing-the-data-in-indexeddb)
+  - [Retrieving data from the IndexedDB](#retrieving-data-from-the-indexeddb)
+  - [Removing data from the IndexedDB](#removing-data-from-the-indexeddb)
 - [Background sync](#background-sync)
   - [How it works](#how-it-works)
   - [Registering the sync manager](#registering-the-sync-manager)
-  - [Storing the data in IndexedDB](#storing-the-data-in-indexeddb)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -584,7 +586,7 @@ Caching dynamic content is different from dynamic caching in that while the latt
 ## Introducing the IndexedDB
 A few features of the IndexedDB;
 
-- It is a transactional Key-Value pairs database i.e. if one of the operations in a given transaction fails, none of the operations are applied
+- It is a transactional Key-Value pairs database i.e. if one of the operations in a given transaction fails, none of the operations are applied. Everything we do with the IndexedDB has to be transactional
 - We could also store a significant amount of data including Files and Blobs
 - It can also be accessed asynchronously
 - It can also be accessed via usual JavaScript code and also from service workers
@@ -613,12 +615,157 @@ cache.addAll([
 ```
 
 ## Storing data in the IndexedDB
+We need to create a database in order to add tables and data to it. Once idb has been made available to the service worker, we can create the database as follows;
 
+```js
+// dbUtilities.js
+
+// pass the preferred name of the database, and, optionally, a version.
+dbPromise = idb.open('my-first-idb', 1, (db) => {
+  // add a table only if it does not exist
+  // keyPath, is a highest level attribute, in the JSON to be stored, that can be used as the primary key.
+  if (!db.objectStoreNames.contains('my-first-table')) {
+    db.createObjectStore('my-first-table', { keyPath: 'id' });
+  }
+});
+```
+
+We can then add some logic in the `fetch` event listener to cache some data once they're available.
+
+```js
+// dbUtilities.js
+// ...
+function writeData(objectStore, data) {
+  const db = await dbPromise; // as created earlier
+  // create a transaction in the context of the table with right permissions
+  const transaction = db.transaction(objectStore, 'readwrite');
+  // open the table through the transaction
+  const store = transaction.objectStore(objectStore);
+  // store the post as the value; the key is the keyPath attribute in the post i.e. id
+  store.put(data);
+  return transaction.complete;
+}
+
+
+
+// serviceWorker.js
+// ...
+importScripts('/path/to/dbUtilities.js');
+// ...
+
+self.addEventListener('fetch', async (event) => {
+  const { request } = event;
+  // we can add some routing checks to determine how to handle different types of requests e.g.
+  const url = 'https://an.endpoint.to/fetch/some/json/data/that/needs/caching';
+  let response;
+  if (request.url.contains(url)) {
+    response = await fetch(request);
+    // store the JSON in table in the database
+    cloneResp = response.clone();
+    const postsProm = await cloneResp.json();
+    const posts = await postsProm;
+    // add the posts to the table in the database
+    posts.forEach(post => {
+      writeData('my-first-table', post);
+    })
+  }
+  event.respondWith(response);
+});
+// ...
+```
+
+## Retrieving data from the IndexedDB
+The store object provides a function for getting all the data from the objectStore. `store.getAll()`. We can make use of this to retrieve data from the IndexedDB.
+
+```js
+// dbUtilities.js
+// ...
+
+async function readAllData (objectStore) {
+  const db = await dbPromise;
+  const transaction = db.transaction(objectStore, 'readonly');
+  const store = db.objectStore(objectStore);
+  return store.getAll(); // we don't need to return a transaction.complete as  this is a read operation hence the integrity and consistency of the database was not at stake
+}
+
+// ....
+```
+
+In the posts JavaScript code, we need to make use of the utility above to read data from the IndexedDB if we have not received data from the network.
+
+```js
+// fetch data from network and use the cached data if we didn't recieve any
+const url = 'https://an.endpoint.to/fetch/some/json/data/that/needs/caching';
+const networkDataReceived = false;
+
+try {
+  const jsonDataProm = await fetch(url);
+  const posts = await jsonDataProm;
+  networkDataReceived = true;
+  displayPosts(posts);
+} catch (err) {
+  console.log(err);
+}
+
+// load data from IndexedDB
+if('indexedDB' in window) {
+  if (!networkDataReceived) {
+    const posts = await readAllData('my-first-table');
+    displayPosts(posts);
+  }
+}
+```
+
+## Removing data from the IndexedDB
+In case items are deleted from the network source e.g. an API, the IndexedDB doesn't remove them. This means that if the client is offline and data is loaded from the indexedDB, then they might end up getting items that have already been deleted. It is therefore important that we clear the entries in the indexedDB first before writing into it when network response has been received.
+
+```js
+// dbUtilities.js
+// ...
+
+async function clearAllData (objectStore) {
+  const db = await dbPromise;
+  const transaction = db.transaction(objectStore, 'readwrite');
+  const store = db.objectStore(objectStore);
+  store.clear();
+  return transaction.complete;
+}
+
+// ....
+```
+
+```js
+// serviceWorker.js
+// ...
+importScripts('/path/to/dbUtilities.js');
+// ...
+
+self.addEventListener('fetch', async (event) => {
+  const { request } = event;
+  // we can add some routing checks to determine how to handle different types of requests e.g.
+  const url = 'https://an.endpoint.to/fetch/some/json/data/that/needs/caching';
+  let response;
+  if (request.url.contains(url)) {
+    // fetch the data
+    // clear the indexedDB
+    await clearAllData('my-first-table');
+    // add the posts to the table in the database
+    posts.forEach(post => {
+      writeData('my-first-table', post);
+    })
+  }
+  event.respondWith(response);
+});
+// ...
+```
+
+### Removing a single item from indexedDB
+We can use the `store.delete(<id>)` method to remove a particular entry in the objectStore.
 
 
 # Background sync
 ## How it works
-Service workers are good for caching request responses. That means that we can cache the responses of POST requests but we can't cache the requests themselves for sending at a later point in time. We, however, can use the service worker to register a synchronous task. We need to then store the data associated to the request with the IndexedDB. Once a connection is re-stablished, the request can be handled by a 'sync' event based on how we have instructed the service worker. This will even work even if the browser got closed.
+Service workers are good for caching request responses. That means that we can cache the responses of POST requests but we can't cache the requests themselves for sending at a later point in time. We, however, can use the service worker to register a synchronous task. We need to then store the data associated with the request in the IndexedDB. Once a connection is re-stablished, the request can be handled by a 'sync' event based on how we have instructed the service worker. This will even work even if the browser got closed.
 
 ![](notes-images/background-sync-how.png)
 *[img: Courtesy of Academind]*
@@ -642,5 +789,3 @@ form.addEventListener('submit', event => {
   registerSyncManager();
 });
 ```
-
-## Storing the data in IndexedDB

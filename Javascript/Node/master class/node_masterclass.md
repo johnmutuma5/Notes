@@ -209,3 +209,25 @@ const compressedString = fs.readFile('/path/to/myFileName.gz.b64', 'utf8', (err,
   })
 })
 ```
+
+## Building a command-line application
+Some useful node modules for command line applications;
+- `readline` - for reading terminal input
+  With the readline module, we can create an interface for interacting with the user
+
+  ```js
+  const interface = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: '>',
+  })
+  ```
+  This creates an interface that allows the user to provide input via the `stdin` of the process and get responses via the `stdout` of the process. With readline, we can subscribe to the `line` event which gets fired when the user types something on the terminal and hits return.
+
+  ```js
+  readline.on('line', handleUserInput);
+  ```
+
+- `events` - for listening to events like command line input
+
+Formatting tip - the `process.stdout` has a width property that we can use to determine elements like space padding.
