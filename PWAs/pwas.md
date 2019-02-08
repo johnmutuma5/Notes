@@ -43,6 +43,8 @@
 - [Background sync](#background-sync)
   - [How it works](#how-it-works)
   - [Registering the sync manager](#registering-the-sync-manager)
+  - [Storing the post data in IndexedDB](#storing-the-post-data-in-indexeddb)
+  - [Adding syncing in the service worker](#adding-syncing-in-the-service-worker)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -728,7 +730,7 @@ async function clearAllData (objectStore) {
   const transaction = db.transaction(objectStore, 'readwrite');
   const store = db.objectStore(objectStore);
   store.clear();
-  return transaction.complete;
+  return transaction.complete; // returns a promise that resolves if everything is ok
 }
 
 // ....
@@ -774,11 +776,24 @@ Service workers are good for caching request responses. That means that we can c
 Let us imagine that we have a form that users fill in with data to post. On the submit handler of the form, we can register a sync manager such that incase the user is offline, or they perhaps close the browser immediately on hitting a submit button before the post has completed, they background synchronisation can take up the task of ensuring that the post request will be sent out whenever it's possible.
 
 ```js
-const registerSyncManager = async () =>  {
+// feeds.js
+const sendViaSyncManager = async () =>  {
+  const serviceWorker = await navigator.serviceWorker.ready;
+  // choose any name of your liking for the registration identity of the sync manager, e.g. sync-new-post
+  const data = {
+    input1: 'value1',
+    input2: 'value3',
+  }
+  await writeData('sync-new-post-object-store', data); // see definition of function in earlier notes
+  await serviceWorker.sync.register('sync-new-post');
+}
+
+const postData = async () => {
+  // send via sync manager if browser supports
   if('ServiceWorker' in navigator && 'SyncManager' in window) {
-    const serviceWorker = await navigator.serviceWorker.ready;
-    // choose any name of your liking for the registration identity of the sync manager, e.g. sync-new-post
-    serviceWorker.sync.register('sync-new-post');
+    await sendViaSyncManager();
+  } else {
+    // send data normally
   }
 }
 
@@ -786,6 +801,52 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   // we should do some form validation here
   // register a sync manager, ensuring browser support
-  registerSyncManager();
+  postData();
+});
+```
+
+The SyncManager API allows us to do the background synchronisation. When registering the SyncManager with the service worker, we can get access to the service worker with `navigator.serviceWorker.ready`. This checks if we have a service worker installed and active and if so, the promise it returns resolves the Service worker. We can then use that to register a sync manager.
+
+We register a task by giving it a name for reference in the service worker e.g. `sync-new-post`. We can use this name to reference the sync task in the service worker to react to a connection re-established event.
+
+## Storing the post data in IndexedDB
+The data to be synced needs to be stored somewhere that the service worker can access later once a connection has been established. The indexedDB is the most appropriate bet as discussed earlier. See earlier notes on how to write data to the indexedDB.
+
+## Adding syncing in the service worker
+The `sync` event is emitted if there is a connection at the time of registering a sync task, or once a connection has been re-established if it wasn't available. It is fired for each task that has been registered with the sync manager as we have seen the sync manager registration section.
+
+The `event` object for this event contains a tag that is usually the unique identifier passed when registering the sync manager e.g. 'sync-new-post'.
+
+```js
+// serviceWorker.js
+
+self.addEventListener('sync', async (event) => {
+  switch (event.tag) {
+    case 'sync-new-post': // loop through items in the sync-new-post-object-store and sync the server
+      event.waitUntil(
+        const posts = await readAllData('sync-new-post-object-store');
+        posts.forEach(post => {
+          const res = await fetch('https://example.com/posts/endpoint', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              id: post.id,
+              title: post.title,
+              location: post.location,
+              image: post.image,
+            })
+          });
+          if (res.ok) {
+            deleteItemFromDb('sync-new-post-object-store', post.id);
+          }
+        });
+      );
+      break;
+    default:
+
+  }
 });
 ```
