@@ -170,7 +170,7 @@ The goal is to make the files required to run the application available in the c
 
 We copy the build files; we need to use the COPY instruction
 
-> COPY <source> <destination>
+> COPY < source > < destination >
 
 In the command, `source` refers to the path of the file/dir on the local file system and `destination` refers to the path where the file should be copied to in the container's file system.
 

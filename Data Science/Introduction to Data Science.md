@@ -552,6 +552,7 @@ We can look up the Z-area that corresponds to the z-score(critical value). The p
 You can find some more notes on Hypothesis testing [here](resources/hypothesis_testing.pdf)
 
 
+
 ## Appendix
 #### Frequency Distribution Table example
 |   |Freq  |

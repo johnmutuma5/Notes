@@ -1,4 +1,0 @@
-- Sleek Online
-- Tusome Africa
-- Queue Manager - banks
-- 
