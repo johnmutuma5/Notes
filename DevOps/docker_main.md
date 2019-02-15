@@ -27,6 +27,9 @@
     - [Docker compose files](#docker-compose-files)
     - [Networking with docker compose](#networking-with-docker-compose)
     - [Docker compose commands](#docker-compose-commands)
+    - [Stopping multiple containers started with docker compose](#stopping-multiple-containers-started-with-docker-compose)
+    - [Container maintenance - auto-restarting](#container-maintenance---auto-restarting)
+    - [Docker compose restart policies](#docker-compose-restart-policies)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -292,7 +295,7 @@ We can just run `docker run redis` to download and run a Redis container from do
 
 We have two options:
 
-- We can make use of the Docker CLI to run commands that set up the networking infrastructure. This is impractical as it will involve a handful of commands that we'll have to run every time we want to start up a container.
+- We can make use of the Docker CLI to run commands that set up the networking infrastructure. This is impractical as it will involve a handful of commands that we'll have to run every time we want to start up a container; which would involve ensuring that the containers run on the same network potentially with the `--network` option in the `docker run ` command. This is because containers without the network details specified may join any network; if they ended up joining the default bridge network, they can conveniently communicate but only inconveniently with their IP addresses; this is challenging as usually, we'll have the name of the container at hand and not the IP address which we can get via `docker inspect < container_name | hash >`
 
 - Using Docker Compose;
   - This is a **separate** CLI tool that gets installed along with Docker
@@ -344,19 +347,55 @@ const client = redis.createClient({
 })
 ```
 ### Docker compose commands
-- `docker-compose up` - attempts to run all the services in the `docker-compose.yml` file. It is the multi-container equivalent of `docker run` for a single container
+- `docker-compose up` - attempts to run all the services in the `docker-compose.yml` file. It is the multi-container equivalent of `docker run` for a single container. We can pass the `-d` option to start in detached mode.
 
 - `docker-compose up --build` - runs all the containers but ensures to try and rebuild them before running. This is useful to ensure that we get the latest changes in files
 
+### Stopping multiple containers started with docker compose
+To stop a single container, we'd run `docker stop < container_name | hash >`;  providing multiple container hashes to the command would stop all of them. We can do this conveniently with docker compose to stop all the containers started by docker compose. This is achieved by `docker-compose down`.
+
+### Container maintenance - auto-restarting
+In cases where one of the containers started with docker compose terminates, perhaps due to a software crash in the container, it does not restart automatically. We can get docker-compose to automatically maintain and restart crashed/stopped containers.
+
+#### Docker compose restart policies
+| Policy          | Description |
+|:----------------|:------------|
+| `"no"`          | Never attempt to restart this. This is usually the default setting.
+| `always`        | Always attempt to restart this container if it fails
+| `on-failure`    | Only restart if the container stops with an error code. i.e. non-zero exit code
+| `unless-stopped`| Always restart unless we i.e. the developers stopped it
+
+**NB** Note how the `"no"` policy is quoted. This is on purpose because in a `.yml` file, the work `no` has a special meaning attached to it; it means false.
+
+Example;
+
+```
+# docker-compose.yml
+version: '3'
+services:
+  redis-server:
+    image: 'redis'
+  node-app:
+    restart: always
+    build: .
+    ports:
+      - "4001:8081"
+```
 
 # Appendix
 ## Commands
 - `docker create <image> [<custom command>]` - create a container from an image
 - `docker start <container_id>` - start a container
-- `docker run <image> [<custom command>]` - create and run a container
+- `docker run <image> [<custom command>, [--network=< network_name >]] ` - create and run a container
 - `docker system prune` - remove all stopped containers
 - `docker logs [OPTIONS] <container_id>` - get the log outputs of a container
 - `docker stop <container_id>` - stop a container `SIGTERM`
 - `docker kill <container_id>` - kill a container `SIGKILL`
 - `docker exec -it <container_id> <command>` - execute another command on a running container
 - `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
+- `docker attach < container_name >` - open the shell for a container
+- `docker network create --drive="<driver e.g. bridge>" < network_name >` - create a custom network
+- `docker network inspect < network_name | hash >` - inspect a network
+- `docker-compose up [--build]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files
+- `docker-compose down` - stop all the containers in the `docker-compose.yml` file in the current dir
+- `docker-compose ps` - list the details of all the containers in the `docker-compose.yml` in the current dir
