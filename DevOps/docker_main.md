@@ -30,6 +30,10 @@
     - [Stopping multiple containers started with docker compose](#stopping-multiple-containers-started-with-docker-compose)
     - [Container maintenance - auto-restarting](#container-maintenance---auto-restarting)
     - [Docker compose restart policies](#docker-compose-restart-policies)
+  - [Creating a production-grade workflow](#creating-a-production-grade-workflow)
+    - [The demo app - ReactJS app](#the-demo-app---reactjs-app)
+    - [Wrapping up the demo application in a docker container](#wrapping-up-the-demo-application-in-a-docker-container)
+      - [Creating the development docker file](#creating-the-development-docker-file)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -382,18 +386,71 @@ services:
       - "4001:8081"
 ```
 
+## Creating a production-grade workflow
+So far, we have not checked how to use docker with a hosting service like AWS. We're going to look and that workflow in this section. We're going to cover a workflow that will allow us to iterate development, testing and deployment.
+
+### The demo app - ReactJS app
+Through the illustrations we're going to be using a ReactJS frontend application. We'll not be writing it from scratch as that is not the focus of these notes. We're going to use `create-react-app` to generate a boilerplate application that will be adequate for the demonstration.
+
+- Install `create-react-app` with `npm install -g create-react-app`
+- Create the application with `create-react-app demo-frontend`
+  - This is going to generate a ReactJS application in the directory `demo-frontend` in the current working directory
+- Important commands once the application has been created:
+  - `npm run start` - starts the application with a development server for development purposes only
+  - `npm run test` - runs the test suites in the application
+  - `npm run build` - builds the application for production
+
+### Wrapping up the demo application in a docker container
+It will be plausible to create at least two Dockerfiles; one for the development environment and the other one for the production environment.
+
+#### Creating the development docker file
+We are going to create a Dockerfile for running in development. For that we can create a file with a slightly different name e.g. `Dockerfile.dev`. We can then build an image for development environement using that file.
+
+##### The development docker file
+
+```txt
+# Dockerfile.dev
+
+FROM node:alpine
+
+WORKDIR "/app"
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "run", "start"]
+```
+
+As we pointed out earlier, we use the command `docker build [options] < build_context >` to create and image using the Dockerfile in the build_context. e.g. `docker build .` builds an image by looking for a Dockerfile in the build context specified as `.` i.e. the current working directory. As we're using a different name for the Dockefile for this purpose, we're going to need to tell docker the file to use as the Dockerfile. We can easily do that by passing the `-f` option in the command and specifying the name of the docker file. i.e.
+
+> _docker build -f Dockerfile.dev ._
+
+This is going to build an image by looking for `Dockerfile.dev` in the build context specified as `.` i.e. the current working directory. The build context can be a relative path to the directory that contains the target Dockerfile.
+
+**NB** _You may notice that the dependency modules i.e. `node_modules` are copied into the image as well. That essentially means that we'll have copies of these in the working directory and in the container too. As we'll not be needing these in the local directory when running the app in the container, we can simply delete the `node_modules` from our local working directory._
+
+_If we try running the build command again after deleting, you may notice that it'll run much faster as we don't copy these files into the image._
+
+_We'll explore an alternative solution in future possibly with the .dockerignore file which we haven't touched on in these notes thus far_
+
+
+
+
 # Appendix
 ## Commands
+- `docker build [options] < build_context >` - build an image from a docker file. Docker looks for a file named `Dockerfile` in the build context. We can specify a file with a different name with the `-f` option. The `build_context` is the relative path to the Dockerfile
 - `docker create <image> [<custom command>]` - create a container from an image
 - `docker start <container_id>` - start a container
 - `docker run <image> [<custom command>, [--network=< network_name >]] ` - create and run a container
+- `docker exec -it <container_id> <command>` - execute another command on a running container
+- `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
+- `docker attach < container_name >` - open the shell for a container
 - `docker system prune` - remove all stopped containers
 - `docker logs [OPTIONS] <container_id>` - get the log outputs of a container
 - `docker stop <container_id>` - stop a container `SIGTERM`
 - `docker kill <container_id>` - kill a container `SIGKILL`
-- `docker exec -it <container_id> <command>` - execute another command on a running container
-- `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
-- `docker attach < container_name >` - open the shell for a container
 - `docker network create --drive="<driver e.g. bridge>" < network_name >` - create a custom network
 - `docker network inspect < network_name | hash >` - inspect a network
 - `docker-compose up [--build]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files
