@@ -13,6 +13,13 @@
 - [Calendar date and time commands](#calendar-date-and-time-commands)
 - [vi editor](#vi-editor)
   - [Some commands](#some-commands)
+- [Chmod and user permissions](#chmod-and-user-permissions)
+- [Sort and uniq command](#sort-and-uniq-command)
+- [Top and PS commands ](#top-and-ps-commands)
+- [Pipes and redirection](#pipes-and-redirection)
+  - [Redirection operators](#redirection-operators)
+  - [File descriptors](#file-descriptors)
+  - [Pipes](#pipes)
 
 # Contents of these notes
 These notes will cover the following aspects;
@@ -235,6 +242,77 @@ The edit mode allows us to input text into the open file where as the command mo
 - `dw` (delete word) - deletes the characters to the right of the cursor upto and inclusive of the first white space character. Similarly, `3dw` deletes 3 words and so forth
 - `x` - deletes one character at a time to the right of the cursor, and if there's no character to the right, it deletes the one to the left of the cursor
 - `yy` (yank) - this copies the line at the current location of the cursor
-- `p` - this pastes the line in the clipboard. It can be preceeded by the yanking command above to achieve the copy-and-paste effect
+- `p` - this pastes the line in the clipboard. It c
+an be preceeded by the yanking command above to achieve the copy-and-paste effect
 - `u` (undo/revert) - undos the most current changes
 - `:set nu` - in command mode hitting `:` and typing the command `set nu` displays the line numbers. These can be hidden by hitting `:` then issuing the command `set nonu`
+- `/` - this fires up searching. We can type characters to search for; hitting `n` to go to the next match, and `Shift + n` to go to the previous match. Set insensitive case for matching with `:set ic` and disable insensitive case search with `:set noic`
+- `Shift + j` - Joins the current line with the next one
+- `Shift + a` - go to the end of the current line
+- `Shift + |` - got to the beginning of the current line
+- `Shift + g` - got to the end of the file
+- `:<number>` - go to line number. e.g. `:1` go to line 1. NB: you need to be in command mode
+
+
+# Chmod and user permissions
+Chmod is used for altering the permissions of a file. File permissions are usually denoted as, example;
+
+`-rwxr--r--`
+  - The first hypen indicates a file, it can sometimes be a `d` indicating a directory
+  - The first 3 bits `rwx` indicate permissions of the file owner - `read`, `write` and `exec`
+  - The next 3 bits `r--` indicate the user's group permissions i.e. this is readonly
+  - The next 3 bits `r--` indicate permissions of others i.e. this is readonly too
+
+The letters usually have values attached to them;
+- `r` - 4
+- `w` - 2
+- `x` - 1
+
+This implies that each set can have a max of 7 points. e.g.
+- `rwxrwxrwx` is symbolically equivalent to `777`
+- `rw-r-r-` is symbollically equivalent to `644`
+
+Using the numeric system, we can set the permissions of a file e.g.
+> chmod 777 <filename>
+
+Besides the numeric system, we can use other commands to assign permissions;
+- `chmod u+rwx <filename>` - add `rwx` to user
+- `chmod u-rwx <filename>` - remove `rwx` from user
+- `chmod o-rwx <filename>` - remove `rwx` from others
+- `chmod g-rwx <filename>` - remove `rwx` from group
+
+... and so forth.
+
+Permissions can be applied recursively on a directory e.g. `chmod -R 777 <dirname>`.
+
+# Sort and uniq command
+- `sort` - sort command outputs the contents of a file in lexicographical order. We can pass options/flags to the command e.g. `-u` for unique entries only and `-n` for numeric sorting. e.g. `sort -u <filename>` Check out the man pages for sort for more options. We can concatenate multiple files with the sort command e.g. `sort -u <filename> <filename2>`
+- `uniq` - the unique command takes its inputs and removes duplicates and then prints out the result. e.g. `cat <filename> | uniq`. NB: this only removes duplicates that are adjacent to each other. To remove all duplicates, we can begin with a `sort` and then `uniq`. `sort <filename> | uniq`
+
+# Top and PS commands
+- `top` - show the system details and the individual process details.
+- `ps` - process status. We can pass the `-ef` option to see all the processes in the system
+
+# Pipes and redirection
+## Redirection operators
+- `>` - redirect to a file or stdout
+- `<` - input from a file or stdin
+- `>>` - redirect and append to a file(makes no sense for stdout)
+- `<<` - append to a file(makes no sense for stdin)
+
+## File descriptors
+A file descriptor is a unique integer that the system assigns to each open file. By default;
+- 0 - stdin
+- 1 - stdout
+- 2 - stderr
+
+We can redirect stderr to stdout with `2>&1`
+
+We can open a file and assign it to a file descriptor, e.g. 3, like - `exec 3<>filename`. We can then cancel the redirection with `exec 3>&-`
+
+## Pipes
+Pipes (|) will pass the output of one command into another.
+
+e.g. `find . -type f | wc -l`. This will execute a word count for lines on all the items of type file in the current directory and its children.
+
+`ls | tee files.txt | wc -l`. This will list out all files in the current directory and then do a word count for lines on the output text.
