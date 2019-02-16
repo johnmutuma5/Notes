@@ -34,6 +34,7 @@
     - [The demo app - ReactJS app](#the-demo-app---reactjs-app)
     - [Wrapping up the demo application in a docker container](#wrapping-up-the-demo-application-in-a-docker-container)
       - [Creating the development docker file](#creating-the-development-docker-file)
+      - [Docker volumes](#docker-volumes)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -327,7 +328,7 @@ By running containers with docker compose, they are run as services on the same 
 
 The only PORT mapping we have defined in the file below is to allow the local machine to have access to the service by making requests on PORT 4001; which, according to our PORT mapping, will be handled by whichever application is running on PORT 8081 in the container.
 
-```
+```yaml
 # docker-compose.yml
 version: '3'
 services:
@@ -373,7 +374,7 @@ In cases where one of the containers started with docker compose terminates, per
 
 Example;
 
-```
+```yaml
 # docker-compose.yml
 version: '3'
 services:
@@ -435,23 +436,95 @@ _If we try running the build command again after deleting, you may notice that i
 
 _We'll explore an alternative solution in future possibly with the .dockerignore file which we haven't touched on in these notes thus far_
 
+We can now run a container with the image and remember to publish the PORT; 3000 on which the react app runs.
 
+> _docker run -p 3000:3000 < the_image_hash>_
 
+You can see _`the_image_hash`_ at the bottom of the message once the image successfully builds.
+
+#### Docker volumes
+When a docker image is built, it takes a snapshot of the filesystem in the build context and that is copied into the container. If we tried to make a change to our files, for instance changing the default display text of our react app, these changes are not automatically reflected on the browser as it is speaking with the application that is running in the container and not the files on our local machine. To display the new changes, we can rebuild the image and run the container again. This would not be a very effecient approach as we'd be doing that quite often with every tiny change that we make in our local file system; enter docker volumes!!
+
+Docker volumes enable us to set up a mapping/reference to the local filesystem inside the container.
+![](notes-images/docker_volumes.png)
+*[img] Docker volumes in a nutshell*
+
+##### Volume mapping
+Just like we did PORT mapping to create referencing between the local PORT and a PORT in container with the `-p` option, we can achieve a similar effect with volumes. We can map a local volume to a container volume with the `-v` option. i.e. `-v < local_dir >:< container_dir >`. The `local_dir` would be the present working directory (pwd) if running the container from the project folder and the `container_dir` would be the container's `WORKDIR` as specified in the Dockerfile. Instead of using putting the entire path to the `pwd` in the command, we can make use of bash shell scripting `command substitution` to autoload the `pwd` with `$(pwd)`. Our run command for our react app would therefore be as follows;
+> _docker run  -p 3000:3000 -v $(pwd):/app  < the_image_hash>_
+
+On running the above command, we get an error that `node_modules` is missing!! Let's talk about bookmarking volumes below.
+
+###### Bookmarking volumes
+When we set up the volume mapping above, we are essentially instructing docker to reference every directory and file in `/app` from the present working directory in the local filesystem. Remember, we don't have `node_modules` in the local filesystem as we had deleted these earlier. We however have it inside the container as the image ran the `npm install` command. This is being overlooked because of the reference we have created with the volume mapping. The solution is to instruct docker not to create a volume mapping for `node_modules`, and any other paths that we'd like to retain reference back to the container. This is referred to as `bookmarking volumes`. We still use the `-v` option but without the `:` as this creates a mapping. To bookmark the volumes on the container, we'll just specify their paths in the container as follows;
+
+> _ ... -v /app/nod_modules ..._
+
+Our full command would therefore look as follows;
+> _docker run  -p 3000:3000 -v /app/node_modules -v $(pwd):/app  < the_image_hash>_
+
+As docker creates mappings between the volumes, it'll not tamper with the volumes bookmarked in the container. Bookmarked volumes will always be accessed from the specified path in the container when building the image.
+
+##### Shorthand with docker compose
+Our run command above looks ridiculously long. Remember we have docker compose that makes starting up containers much easier; both multi and single containers. Let us wire up a docker compose file for running the above container;
+
+```yaml
+# docker-compose.yml
+
+version: "3"
+services:
+  our-client-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app/node_modules
+```
+
+If we run `docker-compose up` like that, we hit an error, that Dockerfile does not exist. This is because like `docker build`, `build: .` looks for a file named Dockerfile in the directory where `docker-compose.yml` is placed. We need to tweak our build to specify a context and a custom Dockerfile name. As follows;
+
+```yaml
+# docker-compose.yml
+
+version: "3"
+services:
+  our-client-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app/node_modules
+```
+
+We this set up on volumes, we may no longer need to keep the `COPY . .` command in the `Dockerfile.dev` but we can just leave it for our own future reference.
+
+### Running tests in a container
+The command that gets executed when we run a container using the image created with our Dockerfile is `npm run start`. To run tests, you will remember that we can pass custom commands to a container.
+> _docker run -it < image_hase > npm run test_
+
+We pass the optional `-it` flag to attach the container's stdin and stdout to our terminal to get identical looks and behaviour.
+
+If the container is already running, we can use the `exec` command to run the tests;
+> _docker exec -it < conatiner_hash > npm run test_
 
 # Appendix
 ## Commands
 - `docker build [options] < build_context >` - build an image from a docker file. Docker looks for a file named `Dockerfile` in the build context. We can specify a file with a different name with the `-f` option. The `build_context` is the relative path to the Dockerfile
-- `docker create <image> [<custom command>]` - create a container from an image
-- `docker start <container_id>` - start a container
-- `docker run <image> [<custom command>, [--network=< network_name >]] ` - create and run a container
-- `docker exec -it <container_id> <command>` - execute another command on a running container
-- `docker exec -it <container-id> sh` - get full terminal access for a container. Very useful for debugging
+- `docker create < image > [< custom command >]` - create a container from an image
+- `docker start < container_id >` - start a container
+- `docker run <image> [< custom command >, [--network=< network_name >]] ` - create and run a container
+- `docker exec -it < container_id > < command >` - execute another command on a running container
+- `docker exec -it < container-id > sh` - get full terminal access for a container. Very useful for debugging
 - `docker attach < container_name >` - open the shell for a container
 - `docker system prune` - remove all stopped containers
-- `docker logs [OPTIONS] <container_id>` - get the log outputs of a container
-- `docker stop <container_id>` - stop a container `SIGTERM`
-- `docker kill <container_id>` - kill a container `SIGKILL`
-- `docker network create --drive="<driver e.g. bridge>" < network_name >` - create a custom network
+- `docker logs [OPTIONS] < container_id >` - get the log outputs of a container
+- `docker stop < container_id >` - stop a container `SIGTERM`
+- `docker kill < container_id >` - kill a container `SIGKILL`
+- `docker network create --drive="< driver e.g. bridge >" < network_name >` - create a custom network
 - `docker network inspect < network_name | hash >` - inspect a network
 - `docker-compose up [--build]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files
 - `docker-compose down` - stop all the containers in the `docker-compose.yml` file in the current dir
