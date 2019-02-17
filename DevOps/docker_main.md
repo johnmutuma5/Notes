@@ -456,6 +456,8 @@ Just like we did PORT mapping to create referencing between the local PORT and a
 On running the above command, we get an error that `node_modules` is missing!! Let's talk about bookmarking volumes below.
 
 ###### Bookmarking volumes
+Bookmarked volumes are called anonymous volumes in docker.
+
 When we set up the volume mapping above, we are essentially instructing docker to reference every directory and file in `/app` from the present working directory in the local filesystem. Remember, we don't have `node_modules` in the local filesystem as we had deleted these earlier. We however have it inside the container as the image ran the `npm install` command. This is being overlooked because of the reference we have created with the volume mapping. The solution is to instruct docker not to create a volume mapping for `node_modules`, and any other paths that we'd like to retain reference back to the container. This is referred to as `bookmarking volumes`. We still use the `-v` option but without the `:` as this creates a mapping. To bookmark the volumes on the container, we'll just specify their paths in the container as follows;
 
 > _ ... -v /app/nod_modules ..._
@@ -463,7 +465,7 @@ When we set up the volume mapping above, we are essentially instructing docker t
 Our full command would therefore look as follows;
 > _docker run  -p 3000:3000 -v /app/node_modules -v $(pwd):/app  < the_image_hash>_
 
-As docker creates mappings between the volumes, it'll not tamper with the volumes bookmarked in the container. Bookmarked volumes will always be accessed from the specified path in the container when building the image.
+As docker creates mappings between the volumes, it'll not tamper with the volumes bookmarked in the container. Bookmarked volumes will always be accessed from the specified path in the container when building the image. It creates an anonymous volume.
 
 ##### Shorthand with docker compose
 Our run command above looks ridiculously long. Remember we have docker compose that makes starting up containers much easier; both multi and single containers. Let us wire up a docker compose file for running the above container;
@@ -499,8 +501,15 @@ services:
       - /app/node_modules
       - .:/app/node_modules
 ```
+**A MAJOR SNAG REARS ITS HEAD HERE:** *Anonymous volumes are never recreated; docker always makes use of their cached versions.* In future, during development, we may need to add new project dependencies to our `node_modules`. We do that with `npm install < package_name >` or by manually adding the dependency in our `package.json`. In both cases, the `package.json` is updated in the container due to the volume mapping we created. When we run `docker-compose up --build` to update the changes, you may notice that the new dependencies don't get into the `node_modules`. As we have noted, anonymous volumes don't recreate and docker always uses their cached versions. When the application runs and tries to load the new dependencies from our anonymous `node_modules`, it can't find them because it is making a reference to the cached version which is the old version. The solution here, for now, is to issue the `docker-compose up --build` command and specifying an option, `-V` or `--renew-anon-volumes` to renew anonymous volumes as follows;
+> _docker-compose up --build -V_
+
+or
+
+> _docker-compose up --build --renew-anon-volumes_
 
 We this set up on volumes, we may no longer need to keep the `COPY . .` command in the `Dockerfile.dev` but we can just leave it for our own future reference.
+
 
 ### Running tests in a container
 The command that gets executed when we run a container using the image created with our Dockerfile is `npm run start`. To run tests, you will remember that we can pass custom commands to a container.
@@ -526,6 +535,6 @@ If the container is already running, we can use the `exec` command to run the te
 - `docker kill < container_id >` - kill a container `SIGKILL`
 - `docker network create --drive="< driver e.g. bridge >" < network_name >` - create a custom network
 - `docker network inspect < network_name | hash >` - inspect a network
-- `docker-compose up [--build]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files
+- `docker-compose up [--build, [--renew-anon-volumes]]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files, `--renew-anon-volumes` enforces a renewal of the anonymous volumes.
 - `docker-compose down` - stop all the containers in the `docker-compose.yml` file in the current dir
 - `docker-compose ps` - list the details of all the containers in the `docker-compose.yml` in the current dir

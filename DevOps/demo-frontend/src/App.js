@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import chai from 'chai';
 import './App.css';
+
+console.log(chai)
 
 class App extends Component {
   render() {
@@ -9,7 +12,7 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>
-            Hallo, how are you? For real?
+            Hallo, how are you? For real. Yes are you. Like really?
           </p>
           <a
             className="App-link"
