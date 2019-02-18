@@ -45,6 +45,8 @@
   - [Registering the sync manager](#registering-the-sync-manager)
   - [Storing the post data in IndexedDB](#storing-the-post-data-in-indexeddb)
   - [Adding syncing in the service worker](#adding-syncing-in-the-service-worker)
+- [Web push notifications](#web-push-notifications)
+  - [How push notifications work](#how-push-notifications-work)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -850,3 +852,15 @@ self.addEventListener('sync', async (event) => {
   }
 });
 ```
+
+# Web push notifications
+Push notifications enable developers to drive user engagement and drive users back into the application. From a user's perspective, you get notified about things that matter to you.
+
+## How push notifications work
+- The user enables notifications
+
+$$
+\begin{equation}
+E=m
+\end{equation}
+$$
