@@ -390,8 +390,6 @@ services:
 ```
 
 ## Creating a production-grade workflow
-
-
 So far, we have not checked how to use docker with a hosting service like AWS. We're going to look and that workflow in this section. We're going to cover a workflow that will allow us to iterate development, testing and deployment.
 
 ### The demo app - ReactJS app
@@ -522,6 +520,7 @@ With this set up on volumes, we may no longer need to keep the `COPY . .` comman
 
 
 ### Running tests in a container
+
 The command that gets executed when we run a container using the image created with our Dockerfile is `npm run start`. To run tests, you will remember that we can pass custom commands to a container.
 > _docker run -it < image_hase > npm run test_
 
@@ -547,6 +546,7 @@ We will demonstrate this with the `nginx` server. Please look out Dockerhub for 
 FROM node:alpine as builder
 WORKDIR '/app'
 COPY package.json .
+RUN npm install
 COPY . .
 RUN npm run build
 
