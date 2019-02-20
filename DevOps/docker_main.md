@@ -531,19 +531,31 @@ If the container is already running, we can use the `exec` command to run the te
 > _docker exec -it < conatiner_hash > npm run test_
 
 ### Implementing a multi-step build
+
+
 Sometimes we will need to implement multi step containers e.g. a container for the application build process and a container for the application run process.
 
 Multi step Dockerfiles will usually contain multiple base images! Each precedent step should be created with an aliased base image. The alias is set with the `as` keyword. See the set up below.
 
 We can create a multi step Docker container with seperate base images per step for our frontend application. This will contain a step for the build process and another step for the run process in a production environment. This would be an appropriate set up for the production enviroment. The multi step Dockerfile would look as follows;
 
+We will demonstrate this with the `nginx` server. Please look out Dockerhub for specific guide on setting up an `nginx` container. In this demo, well only create a basic `nginx` container;
+
 ```
+# begin build phase
+
 FROM node:alpine as builder
 WORKDIR '/app'
 COPY package.json .
 COPY . .
 RUN npm run build
+
+# begin the run phase
+
+FROM nginx
+COPY --from=builder /app/build /usr/share/nginx/html
 ```
+Note that in the image file, we do not specify a default command for this particular example since the default command for the `nginx` container is to run the server.
 
 
 
