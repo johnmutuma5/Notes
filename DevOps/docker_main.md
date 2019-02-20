@@ -1,4 +1,5 @@
 # Table of Contents
+
 - [Why Use Docker](#why-use-docker)
 - [Using the Docker Client](#using-the-docker-client)
 - [What is an Image](#what-is-an-image)
@@ -35,6 +36,7 @@
     - [Wrapping up the demo application in a docker container](#wrapping-up-the-demo-application-in-a-docker-container)
       - [Creating the development docker file](#creating-the-development-docker-file)
       - [Docker volumes](#docker-volumes)
+    - [Implementing a multi-step build](#implementing-a-multi-step-build)
 - [Appendix](#Appendix)
 
 # Why Use Docker
@@ -388,6 +390,8 @@ services:
 ```
 
 ## Creating a production-grade workflow
+
+
 So far, we have not checked how to use docker with a hosting service like AWS. We're going to look and that workflow in this section. We're going to cover a workflow that will allow us to iterate development, testing and deployment.
 
 ### The demo app - ReactJS app
@@ -450,7 +454,8 @@ Docker volumes enable us to set up a mapping/reference to the local filesystem i
 *[img] Docker volumes in a nutshell*
 
 ##### Volume mapping
-Just like we did PORT mapping to create referencing between the local PORT and a PORT in container with the `-p` option, we can achieve a similar effect with volumes. We can map a local volume to a container volume with the `-v` option. i.e. `-v < local_dir >:< container_dir >`. The `local_dir` would be the present working directory (pwd) if running the container from the project folder and the `container_dir` would be the container's `WORKDIR` as specified in the Dockerfile. Instead of using putting the entire path to the `pwd` in the command, we can make use of bash shell scripting `command substitution` to autoload the `pwd` with `$(pwd)`. Our run command for our react app would therefore be as follows;
+
+Just like we did PORT mapping to create referencing between the local PORT and a PORT in container with the `-p` option, we can achieve a similar effect with volumes. We can map a local volume to a container volume with the `-v` option. i.e. `-v < local_dir >:< container_dir >`. The `local_dir` would be the present working directory (pwd) if running the container from the project folder and the `container_dir` would be the container's `WORKDIR` as specified in the Dockerfile. Instead of putting the entire path to the `pwd` in the command, we can make use of bash shell scripting `command substitution` to autoload the `pwd` with `$(pwd)`. Our run command for our react app would therefore be as follows;
 > _docker run  -p 3000:3000 -v $(pwd):/app  < the_image_hash>_
 
 On running the above command, we get an error that `node_modules` is missing!! Let's talk about bookmarking volumes below.
@@ -508,7 +513,12 @@ or
 
 > _docker-compose up --build --renew-anon-volumes_
 
-We this set up on volumes, we may no longer need to keep the `COPY . .` command in the `Dockerfile.dev` but we can just leave it for our own future reference.
+With this set up on volumes, we may no longer need to keep the `COPY . .` command in the `Dockerfile.dev` but we can just leave it for our own future reference.
+
+
+
+
+
 
 
 ### Running tests in a container
@@ -519,6 +529,24 @@ We pass the optional `-it` flag to attach the container's stdin and stdout to ou
 
 If the container is already running, we can use the `exec` command to run the tests;
 > _docker exec -it < conatiner_hash > npm run test_
+
+### Implementing a multi-step build
+Sometimes we will need to implement multi step containers e.g. a container for the application build process and a container for the application run process.
+
+Multi step Dockerfiles will usually contain multiple base images! Each precedent step should be created with an aliased base image. The alias is set with the `as` keyword. See the set up below.
+
+We can create a multi step Docker container with seperate base images per step for our frontend application. This will contain a step for the build process and another step for the run process in a production environment. This would be an appropriate set up for the production enviroment. The multi step Dockerfile would look as follows;
+
+```
+FROM node:alpine as builder
+WORKDIR '/app'
+COPY package.json .
+COPY . .
+RUN npm run build
+```
+
+
+
 
 # Appendix
 ## Commands

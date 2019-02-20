@@ -3,8 +3,6 @@ import logo from './logo.svg';
 import chai from 'chai';
 import './App.css';
 
-console.log(chai)
-
 class App extends Component {
   render() {
     return (
@@ -12,7 +10,10 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>
-            Hallo, how are you? For real. Yes are you. Like really?
+            { 
+              'We made it finally, babe! Just hold on to this. This is us!!' + 
+              ' We did it again and we\'re going to do it over again'
+            }
           </p>
           <a
             className="App-link"
@@ -20,7 +21,7 @@ class App extends Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Learn React
+            Loving it!
           </a>
         </header>
       </div>
