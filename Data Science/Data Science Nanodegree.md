@@ -36,9 +36,29 @@ This is a concept used in moving the fitting line closer to a point. Taking an e
 ![](notes-images/absolute-trick.png)
 
 ## The square trick
+
 This is an improvement to the absolute trick above. It introduces the vertical distance of the point in question from the initial fitting line. We factor the vertical distance in our calculation for the new gradient and y-intercept.
 ![](notes-images/square-trick-before.png)
 [img] Line before transform
 
 ![](notes-images/square-trick.png)
 [img] Line after transform
+
+The square trick represents an expression of a gradient descent with the Mean Square Error. Try to see how the following illustrations appears to be similar to the square trick illustration above.
+
+[mean-square-error]: notes-images/mean-square-error.png
+![][mean-square-error]
+
+When finding the line of best fit, we try to create a line that will minimise the sum of the `Mean Square Error` of all the points in question. This can be illustrated with the following diagram.
+
+[mean-square-error-min]: notes-images/mean-square-error-min.png
+![](notes-images/mean-square-error.png)
+
+Having seen different ways of bringing a line closer to a point, there are two approaches to bringing the line as close as possible to a multitude of points;
+
+- The stochastic approach - choose points one after the other and apply the gradient descent
+- The batch approach - choose all the points as a batch and apply the gradient descent
+
+In practice, none of the above approaches is efficient enough especially when the data in question is massive. The efficient approach would be to batch the dataset into smaller batches and with roughly the same number of points and use the batches to update the regression weights. This is called the `mini-batch gradient` approach.
+
+
