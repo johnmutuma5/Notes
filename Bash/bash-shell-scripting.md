@@ -1,4 +1,5 @@
 # Table of Contents
+
 - [Contents of these notes](#contents-of-these-notes)
   - [Commands to cover](#commands-to-cover)
 - [Introduction to shell scripting](#introduction-to-shell-scripting)
@@ -20,6 +21,8 @@
   - [Redirection operators](#redirection-operators)
   - [File descriptors](#file-descriptors)
   - [Pipes](#pipes)
+  - [Wildcards and regex](wildcards-and-regex)
+  - [Find command](find-command)
 
 # Contents of these notes
 These notes will cover the following aspects;
@@ -27,6 +30,7 @@ These notes will cover the following aspects;
 - Directory hierarchy in linux, a tree command demo
 - Multi-tasking and Multi-user
 - Linux system boot up and init-process
+
 
 ## Commands to cover
 - ls, cd, ls -ltr, man
@@ -158,7 +162,7 @@ The fifth column is the size of the file.
 
 The sixth column is the time details of the file's creation.
 
-We can also issue `ls -l` with the `h`, human readable, option, `ls -lh` to see the outputs especially size in a human readable format e.g. `4.5K` instead of `4500` in the size column.
+We can also issue `ls -l` with the `h`, human readable, option, `ls -lh` to see the outputs especially size in a human readable format e.g. `4.5K` instead of `4500` in the size column. Use the `-d` flag for the long listing of a directory.
 
 ## cd command
 Changes the present working directory.
@@ -311,8 +315,85 @@ We can redirect stderr to stdout with `2>&1`
 We can open a file and assign it to a file descriptor, e.g. 3, like - `exec 3<>filename`. We can then cancel the redirection with `exec 3>&-`
 
 ## Pipes
+
 Pipes (|) will pass the output of one command into another.
 
 e.g. `find . -type f | wc -l`. This will execute a word count for lines on all the items of type file in the current directory and its children.
 
 `ls | tee files.txt | wc -l`. This will list out all files in the current directory and then do a word count for lines on the output text.
+
+## Wildcards and regex
+Wildcards are a way in which we can match multiple items.
+- `?` - matches a single character e.g. `??` will match two characters
+- `*` - matches zero or more characters e.g. `*.txt` will match anything ending in `.txt`
+- `[]` - this matches any character in the specified range. e.g. [a-b] would match any character between `a` and `b`. We can combine this with a repetition character like `*`, `?`, `+` or `{}` 
+- `{ }` - we can use this to pass multiple match patterns e.g. {*.txt, *.doc} would match all entries ending in .txt or .doc
+
+## Find command
+The find command is used for finding directories and files in the directory tree. It lists out the files in the specified path.
+
+- `find . ` - lists all the files in the current directory
+
+We can pass the `-name` option to the command in order to get the files with a particular name
+
+- `find . -name abc.txt` - this is going to list all the files with the name abc.txt inside the current directory and its sub-directories. The name option also has the case insensitive version `-iname`
+
+The command also supports regex and wildcard matches
+
+- `find . -iname "*.cpp"` - This will match all the files ending in .cpp in the curent directory and it's sub-directories
+
+We can also specify the maximum depth in the directory tree beyond which matches should not be returned
+
+- `find . -maxdepth 2 -iname "*.cpp"` - This is going to list .cpp files up to a maximum of 2 sub-directories
+
+We can also negate the match pattern 
+
+- `find . -not -iname "*.cpp"` - This is going to lis files that do not end in .cpp. We can also use the bang `!` in place of `-not`
+
+We can create union matches i.e. `or` with the `-o` option
+
+- `find . -iname "*.cpp" -o -iname "*.h"` - lists all files ending in .cpp or .h
+
+We can also create joint conditions with the `-a` option
+
+- `find . -iname "*.cpp" -a -iname "*test*"` - this is going to list all .cpp files that contain the word 'test' in the filename
+
+In Unix, files and directories are both considered as files i.e. directories are files that contain other files and regular files. We can specify in the find command that we want to get only regular files in the results with the `-type` option;
+
+- `find . -iname "*test" -type f` - this will list out the regular files that contain the word test in the filename. We can also use `d` instead of `f` in the type in order to list out files of type directory
+
+We can also pass more than one path to the find command
+
+- `find path1 path2` - lists all files in path1 and path2
+
+We also have the option of specifying the target permissions. i.e. we can list out files with certain permission rules set
+
+- `find . -type f -perm 777` - this is going is going to list out all the files that have read, write and exec permissions set for the owner, owner's group and others set. We can negate the match with the `!`. We can further fine tune this match e.g. to find all the files in the current directory that has exec permission set for `others`, we can tailor the command as follows;
+  - `find . -type f -perm -o+rwx` will match files where `other` users have read, write and exec permissions
+
+To find the files that belong to a certain user, then we can use the `-user` option in the command 
+- `find . -user johnmutuma`
+
+To find a file that has been modified specified number of days ago, we can use the `-mtime` option
+- `find . -mtime 10` - will list out files that have been modified 10days ago. The `-atime` option specifies the access time
+  - We can add a `+` or a `-` with the specified time to specify greater than or less than respectively. i.e. `-mtime -10` will list out files that were modified less that 10 days ago. 
+  - `mmin 20` is going to list files modified 20min ago. This can be used with `amin` too
+
+  We can also specify the size with the `-size` flag. e.g. `-size 50M`. lists files that are 50megabytes. The `+` and `-` can also be used with this.
+  To list out the empty files i.e. files that have a size of 0bytes, we can add the `-empty` option. Alternative `-size 0`.
+
+We can exec another command on the resulting files using the `-exec` option 
+- `find . -exec ls -ld {} \;` - this is going to execute the command `ls -ld` on the results of `find .` The  `{} \;` is required for this to work. This almost works and produces similar results as running with `xargs` as `find . | xargs ls -ld`
+
+
+
+
+
+
+
+
+
+
+
+
+
