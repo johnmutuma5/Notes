@@ -48,7 +48,9 @@
       - [Type II error](#type-ii-error)
     - [Test for mean](#test-for-mean)
       - [Population variance known](#population-variance-known)
-
+  - [Advanced Statistical Methods](#advanced-statistical-methods)
+      - [Linear Regression](#linear-regression)
+      - [The R Squared Measure](#the-r-squared-measure)
 # Introduction
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
@@ -189,6 +191,7 @@ Some software common in Data science;
 
 
 # Statistics
+
 ## Population and Sample
 Population - collection of all items of interest to the study `N`. Numbers obtained from a population are called parameters.
 
@@ -550,6 +553,35 @@ The p value is the smallest significance level at which we can still reject the 
 We can look up the Z-area that corresponds to the z-score(critical value). The p value is a universal concept that works for all distributions.
 
 You can find some more notes on Hypothesis testing [here](resources/hypothesis_testing.pdf)
+
+## Advanced Statistical Methods
+### Linear Regression
+Linear regressions is a linear approximation of the causal relationship between two or more variables.
+
+Some important packages when using Python for Data Science include;
+- numpy - this allows us to work with multidimensional arrays
+- pandas - enhances numpy even more allowing us to organise data in a tabular form and attach descriptive labels to the rows and columns
+- scipy - a Python ecosystem containing a wide variety of tools for scientific computations. It includes tools for mathemaitcs, machine learning,  engineering and more
+- statsmodels.api - helpful for producing nice statistical summaries
+- matplotlib - 2D visualization library specially designed for visualisation of numpy computations
+- seaborn - Python visualisation library based on matplotlib. It provides a high level interface for producing attractive statistical graphics
+- sklearn - a widely used machine learning library
+
+### The R Squared Measure
+Once we have produced a regrression model, we need to know how much good a fit it is for the data in question. R Squared is a good measure for the goodness of fit. It show the proportion of variability in the data that is explained by the regression model. It is computed as proportion of the variability explained by the model and the total variability of the data. 
+
+$$
+  R^2 = \frac
+            {Sum \: Squares \: Regression}
+            {Total \: Sum \: Squares}
+$$
+
+
+
+
+
+
+
 
 
 
