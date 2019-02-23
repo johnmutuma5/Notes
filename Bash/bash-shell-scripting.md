@@ -21,8 +21,10 @@
   - [Redirection operators](#redirection-operators)
   - [File descriptors](#file-descriptors)
   - [Pipes](#pipes)
-  - [Wildcards and regex](wildcards-and-regex)
-  - [Find command](find-command)
+  - [Wildcards and regex](#wildcards-and-regex)
+  - [Find command](#find-command)
+  - [grep Command](#grep-command)
+      
 
 # Contents of these notes
 These notes will cover the following aspects;
@@ -386,10 +388,23 @@ We can exec another command on the resulting files using the `-exec` option
 - `find . -exec ls -ld {} \;` - this is going to execute the command `ls -ld` on the results of `find .` The  `{} \;` is required for this to work. This almost works and produces similar results as running with `xargs` as `find . | xargs ls -ld`
 
 
+## grep Command
+Grep stands for Global Regular expressions print.
 
+There are various variants of grep;
+- `grep` - the regular grep
+- `egrep` - extended grep. Same as Grep -E. Depracated in favour of `grep -E`
+- `fgrep` - Same as Grep -F. It is a fixed string grep. Depracated in favour of `grep -F`
+- `rgrep` - It is a reverse grep.
 
+Some common usage:
+- `grep "john" some-file.txt` - check for pattern "john" in some-file.txt
+- `grep -r "john" *` - search pattern "john" in all files recursively
+- `grep -riv "john" *` - search all files that don't have pattern "john" `i` for case insensitive, `v` for excluding pattern
+- `grep -c "john" some-file.txt` - count the number of occrurences in some-file.txt
+- `grep -E "john|mutuma" some-file.txt` - treats the pattern as regular expression
 
-
+We can highlight the results with the `--color-always` option
 
 
 
