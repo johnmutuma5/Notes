@@ -51,6 +51,13 @@
   - [Advanced Statistical Methods](#advanced-statistical-methods)
       - [Linear Regression](#linear-regression)
       - [The R Squared Measure](#the-r-squared-measure)
+      - [Using seaborn for visualisations](#using-seaborn-for-visualisations)
+      - [Decomposition of variability](#decomposition-of-variability)
+      - [Multiple Regresssion](#multiple-regresssion)
+      - [Test for overall significance of the model - F test](#test-for-overall-significance-of-the-model---f-test)
+
+
+
 # Introduction
 ## Techniques for working with traditional data
 Data is a very broad term and can be used to refer to:
@@ -567,6 +574,38 @@ Some important packages when using Python for Data Science include;
 - seaborn - Python visualisation library based on matplotlib. It provides a high level interface for producing attractive statistical graphics
 - sklearn - a widely used machine learning library
 
+### Decomposition of variability
+Variability in the dependent variable can be broken down into three after fitting a regression model.
+
+- `The Sum of Squares Regression` - 
+  This is a measure of variability explained by the regression model. It can be expressed as follows;
+  
+  $$
+    SSR = {
+      \sum_{i=0}^{n} (\widehat{y_i} - \bar{y})^2
+    }
+  $$
+
+- `The Sum of Squares Error` - 
+  This is a measure of varibalility that is unexplained by the regression model. It is a measure of variablity caused by other factors that are not in the model. It can be expressed as follows;
+  $$
+    SSE = {
+       \sum_{i=0}^{n} (y_i - \widehat{y_i})^2
+    }
+  $$
+
+- `The Sum of Squares Total` - 
+  This is a measure of the total variability. It is the sum of `SSR` and `SSE`. It can be expressed as follows;
+  $$
+    SST = {
+       \sum_{i=0}^{n} (y_i - \bar{y_i})^2
+    }
+  $$
+
+[decomposing-variability]: notes-images/decomposing-variability.png
+![][decomposing-variability]
+
+
 ### The R Squared Measure
 Once we have produced a regrression model, we need to know how much good a fit it is for the data in question. R Squared is a good measure for the goodness of fit. It show the proportion of variability in the data that is explained by the regression model. It is computed as proportion of the variability explained by the model and the total variability of the data. 
 
@@ -576,13 +615,26 @@ $$
             {Total \: Sum \: Squares}
 $$
 
+### Using seaborn for visualisations
+In order to take advantage of `seaborns` visualization aesthetics, we need to import it. Then set it so as to override default matplotlib visualization style as follows;
 
+```python
+import seaborn as sns
 
+sns.set()
+```
 
+### Multiple Regresssion
+In real life a dependent variable is not usually solely dependent on one factor. There are more factors that influence the variability of the variable's value. The more factors we introduce into our regression models, the better the fit becomes. i.e. $ R^2 $ becomes much better.
 
+This has a downside when we add factors into the models that don't really have significance in the variability of the dependent variable. We can be able to point such variables out by observing the `Adjusted R - Squared` value and comparing that with its value before the additional variable was factored. Furtheremore, insignificant varibales have a very high p- value as can be observed from the summary produced by the `statsmodels`. The null hypothesis for a regression model on each variable is the the coefficient for that variable is 0. $ H_0: \beta = 0 $
 
+### Test for overall significance of the model - F test
+The F test attempts to determine the general significance of the model. The null hypothesis of the F test is
 
+$$ H_0: \beta_{1} \: = \: \beta_{2} \dots \beta_{k} \: = \: 0  $$
 
+It allows us also to compare models.
 
 
 ## Appendix

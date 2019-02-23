@@ -1,5 +1,4 @@
 # Table of Contents
-
 - [Why Use Docker](#why-use-docker)
 - [Using the Docker Client](#using-the-docker-client)
 - [What is an Image](#what-is-an-image)
@@ -37,7 +36,10 @@
       - [Creating the development docker file](#creating-the-development-docker-file)
       - [Docker volumes](#docker-volumes)
     - [Implementing a multi-step build](#implementing-a-multi-step-build)
-- [Appendix](#Appendix)
+  - [CI and Deployment with AWS](#ci-and-deployment-with-aws) 
+    - [TravisCI yaml File](#travisci-yaml-file)
+    - [Running the tests on Travis](#running-the-tests-on-travis)
+- [appendix](#Appendix)
 
 # Why Use Docker
 Docker makes it very easy to install and run software without worrying about errors and dependencies.
@@ -562,6 +564,60 @@ With that set up, we can build the image and use it to spin out some containers;
 > _docker build ._
 
 > _docker run -p 8080:80 < image_hash >_
+
+## CI and Deployment with AWS
+We are going to use TravisCI to automate the testing and deployment processes. Once we have changes in the codebase and update the repo, TravisCI is going to pick up the code from Github, run tests on it and if it's a pass, it'll proceed to send the updated version of the application to AWS for deployment.
+
+### TravisCI yaml File
+TravisCI youse the `.travis.yml` file to look for instructions for what to do with the code that it collects from Github. We put this file in the root directory of the project and it contains a series of instructions to configure TravisCI with what to do.
+
+#### Running the tests on Travis
+Things that we're going to inform TravisCI in order to run our tests
+- We need a copy of docker running
+- Build an image using Dockerfile.dev
+- Create a container using that image
+- Tell TravisCI how to run our test suites
+
+The `.travis.yml` file can look something of this sort;
+
+```yml
+sudo: required   # using docker is going to need some root user permissions
+services:        # a list of services to install e.g. docker, databases etc
+  - docker
+
+before_install:  # things to happen before tests and deployment
+  - docker build -t johnmutuma5/docker-react -f Dockerfile.dev .
+
+script:
+  - docker -it run johnmutuma5/docker-react -f Dockerfile.dev
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
