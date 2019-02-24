@@ -47,6 +47,8 @@
   - [Adding syncing in the service worker](#adding-syncing-in-the-service-worker)
 - [Web push notifications](#web-push-notifications)
   - [How push notifications work](#how-push-notifications-work)
+    - [Requesting for Notifications Permissions](#requesting-for-notifications-permissions) 
+    - [Displaying our First Notification](#displaying-our-first-notification)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -859,8 +861,79 @@ Push notifications enable developers to drive user engagement and drive users ba
 ## How push notifications work
 - The user enables notifications
 
-$$
-\begin{equation}
-E=m
-\end{equation}
-$$
+
+
+### Requesting for Notifications Permissions
+In order for the web app to send notifications, the user needs to allow the notifications from the web app. We can trigger a request using the Notifications API in the browser window.
+
+```js
+// app.js
+const requestNotificationButton = document.querySelector('.notificationsButton');
+
+function requestNotificationsPermission () {
+  Notification.requestPermission((result) => {
+   if (result !== 'granted') return false;
+    // handle other options
+  })
+}
+if (Notification in window) {
+  requestNotificationsButton.addEventListener('click', requestNotificationPermission);  
+}
+```
+
+### Displaying our First Notification
+Once the user has selected an option, we can handle the user choice. We will see how we can display our first notification by responding to a granted access to notifications with a message, 'Successfully subscribed!'.
+
+
+```js
+  // app.js
+  const requestNotificationButton = document.querySelector('.notificationsButton');
+
+  function requestNotificationsPermission () {
+    Notification.requestPermission((result) => {
+      if (result !== 'granted') return false;
+      if (result === 'granted') {
+      const options = {
+        body: 'You successfully subscribed to notifications'
+      };
+        new Notification ('Successfully subscribed!', options);
+      }
+    })
+  }
+  if (Notification in window) {
+    requestNotificationsButton.addEventListener('click', requestNotificationPermission);  
+  }
+```
+
+We can also use the service worker API to show the notifications;
+
+```js
+// app.js
+
+function displayConfirmation () {
+  // use this in the requestPermisssion callback body above
+  if ('serviceWorker' in window) {
+    const serviceWorker = await navigator.serviceWorker.ready;
+
+    const options = {
+      body: 'You successfully subscribed to notifications'
+    };
+    serviceWorker.showNotification('Successfully subscribed', options);
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
