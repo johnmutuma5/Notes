@@ -49,6 +49,8 @@
   - [How push notifications work](#how-push-notifications-work)
     - [Requesting for Notifications Permissions](#requesting-for-notifications-permissions) 
     - [Displaying our First Notification](#displaying-our-first-notification)
+    - [Notification Options](#notification-options)
+    - [Reacting to Notifications Interactions](#reacting-to-notifications-interactions)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -923,13 +925,37 @@ function displayConfirmation () {
 }
 ```
 
+### Notification Options
+Besides the body option, there are a number of options that we can pass to the Notifications constructor in order to customize the look and behaviour of the notification;
 
+- icon - the icon to appear in the notification
+- image - an image to appear in the notification
+- lang - the BCP 47 language
+- vibrate - the vibration pattern
+- tag - a notifications tag. This is like an id for the notification. Displaying notifications with the same tag causes them to stack up on each other ideally replacing the previous one, only one will display upon each other
+- renotify - set true or false to controll whether notifications with the same tag should renotify the user i.e. vibration
+- actions - an array of JavaScript objects that the user can choose to click. These may not be displayed as expected by all operating systems hence they should be used withcaution. Each action object should have an action, a title and optionally an icon
+  ```js
+    {action: 'confirm', Title: 'Confirm'}    
+  ```
 
+### Reacting to Notifications Interactions
+Reacting to notifications happens in the service worker since it is controlled by the operating system and not our application. i.e. a user can interact with the notification even when our page or even the browser is not open.
 
+The service worker can listen to the `notificationclick` event that gets fired once a user clicks on a notification that was thrown by the service worker.
 
+```js
+// serviceWorker.js
+self.addEventListener('notificationclick', (event) => {
+  // handle the event
+  const notification = event.notification;
+  const action = event.action
+  // ...
+  notification.close();
+})
+```
 
-
-
+We can also listen to the `notificationclose` event possibly for analytics purposes.
 
 
 
