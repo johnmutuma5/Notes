@@ -39,6 +39,7 @@
   - [CI and Deployment with AWS](#ci-and-deployment-with-aws) 
     - [TravisCI yaml File](#travisci-yaml-file)
     - [Running the tests on Travis](#running-the-tests-on-travis)
+    - [Hosting the Application with Elastic Beanstalk on AWS](#hosting-the-application-with-elastic-beanstalk-on-aws)
 - [appendix](#Appendix)
 
 # Why Use Docker
@@ -504,7 +505,7 @@ services:
       - "3000:3000"
     volumes:
       - /app/node_modules
-      - .:/app/node_modules
+      - .:/app
 ```
 **A MAJOR SNAG REARS ITS HEAD HERE:** *Anonymous volumes are never recreated; docker always makes use of their cached versions.* In future, during development, we may need to add new project dependencies to our `node_modules`. We do that with `npm install < package_name >` or by manually adding the dependency in our `package.json`. In both cases, the `package.json` is updated in the container due to the volume mapping we created. When we run `docker-compose up --build` to update the changes, you may notice that the new dependencies don't get into the `node_modules`. As we have noted, anonymous volumes don't recreate and docker always uses their cached versions. When the application runs and tries to load the new dependencies from our anonymous `node_modules`, it can't find them because it is making a reference to the cached version which is the old version. The solution here, for now, is to issue the `docker-compose up --build` command and specifying an option, `-V` or `--renew-anon-volumes` to renew anonymous volumes as follows;
 > _docker-compose up --build -V_
@@ -589,20 +590,40 @@ before_install:  # things to happen before tests and deployment
   - docker build -t johnmutuma5/docker-react -f Dockerfile.dev .
 
 script:
-  - docker -it run johnmutuma5/docker-react -f Dockerfile.dev
+  - docker -it run johnmutuma5/docker-react -f Dockerfile.dev npm run test -- --coverage
 ```
 
 
+#### Hosting the Application with Elastic Beanstalk on AWS
+Elastic Beanstalk is most appropriate when running one container at a time; we can however start multiple containers at a time.
 
+We create an application on AWS and an environment for the application. We select a web server environment and in the base configuration, we select Docker for the Platform. Once everything has been setup, we can set up TravisCI configuration for deployment.
 
+##### TravisCI configuration for hosting to AWS
+We add another section called `deploy` to the TravisCI configuration file.
 
+```yml
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-2"            # this can be found in the beanstalk app url
+  app: docker-react              # the name of the beanstalk app we chose
+  env: "DockerReact-env"         # the environment name assigned
+  bucket_name: "elasticbeanstalk-us-east-2-631657872849"                # the s3 bucket for the application. Find from s3.
+  bucket_path: "docker-react"    # all elastic beanstalk apps we create share a common bucket and each beanstalk app get's a folder in its name
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: 
+    secure: "$AWS_SECRET_KEY"
+```
 
+On AWS we need to create an IAM bot user for TravisCI and get the authentication credentials which we put in the Travis secret Environment. These can be set with names as being accessed in the yml file above. 
 
+Exposing the PORT for Elastic Beanstalk calls for us to add the EXPORT rule in our Dockerfile.
 
-
-
-
-
+```txt
+EXPOSE 80
+```
 
 
 
