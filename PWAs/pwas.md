@@ -51,6 +51,7 @@
     - [Displaying our First Notification](#displaying-our-first-notification)
     - [Notification Options](#notification-options)
     - [Reacting to Notifications Interactions](#reacting-to-notifications-interactions)
+    - [Storing the Subscription](#storing-the-subscription)
 
 # Core building blocks
 These are the main building blocks used when creating progressive web apps.
@@ -957,7 +958,30 @@ self.addEventListener('notificationclick', (event) => {
 
 We can also listen to the `notificationclose` event possibly for analytics purposes.
 
+### Storing the Subscription
+Once the client receives the notification permission request and they enable the notifications, we'd need to store that subscription in the server.
 
+```js
+
+function configurePushSubscription () {
+  if (!('serviceWorker' in navigator)) { return; }
+  // get the service worker
+  const serviceWorker = await navigator.serviceWorker.ready;
+  const subscription = await serviceWorker.pushManager.getSubscription();
+  if (subscription === null) {
+    // create a new one 
+  }
+}
+
+
+function requestNotificationPermission () {
+  Notification.requestPermission((result) => {
+    if (result === 'granted') {
+      configurePushSubscription();
+    }
+  })
+}
+```
 
 
 
