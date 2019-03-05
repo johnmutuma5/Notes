@@ -55,6 +55,7 @@
       - [Decomposition of variability](#decomposition-of-variability)
       - [Multiple Regresssion](#multiple-regresssion)
       - [Test for overall significance of the model - F test](#test-for-overall-significance-of-the-model---f-test)
+      - [The Assumptions of the OLS](#the-assumptions-of-the-ols)
 
 
 
@@ -635,6 +636,26 @@ The F test attempts to determine the general significance of the model. The null
 $$ H_0: \beta_{1} \: = \: \beta_{2} \dots \beta_{k} \: = \: 0  $$
 
 It allows us also to compare models.
+
+### The Assumptions of the OLS
+#### Linearity
+OLS assumes that the model is linear. Each explanatory variable has a coefficient and there's a common constant value. We can determine if a linear model would be suitable by looking at the scatter plot between a dependent and an independent variable and judging if we can observe any visual linear trend. If the observation is not linear, we should not use the data before transforming it appropriately e.g. exponential or logarithmic transformation.
+
+#### No Endogeneity
+This refers to a situation whereby an explanatory variable is correlated with the error term. This is usually a result of omitted variables. When a we have a variable, Z, that is not included as an x variable yet it it is correlated to one of the x variables and the y variable, then that means that the x variable is correlated with the error term as the error term includes all other factors that are not accounted for in the model.
+
+#### Normality and Homoscedasticity
+This makes an assumption that the error term is normally distributed. It also expects that the error term will have a zero mean. Homoscedasticity implies equal variance of the error terms for different observations with the same model. This can be prevented by;
+
+- Looking for the omitted variable bias
+- Looking for outliers
+- The log transform
+
+#### No Autocorrelation
+This is also known as no serial correlation. This autocorrelation is on the error terms. The remedy is to avoid using a linear model when the error terms are autocorrelated. The Durbin Watson statistic is a good measure for autocorrelation.
+
+#### No Multi-collinearity
+We observe multi-collinearity when two or more variables have a high correlation.
 
 
 ## Appendix
