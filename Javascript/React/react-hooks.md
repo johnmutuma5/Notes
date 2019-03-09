@@ -5,7 +5,7 @@ This feature allows us to use functional components only. We can still use class
 # What are Hooks?
 A new way of writing our components.
 
-# The useState Function
+# The useState Hook
 This signals to react to use state for a functional component. It is invoked with the most initial state inside the component and returns an array of two;
 
 - The most current state
@@ -182,3 +182,70 @@ const childComponent = props => {
   return <div>{ itemContext.item }</div>
 }
 ```
+
+## useReducer Hook
+useReducer can be thought of as an alternative to useState; this is because it can do what useState does and also allow us to mutate the state of the component more elegantly when there are multiple actions that could mutate the state of the component.
+
+```jsx
+import React, { useReducer } from 'react';
+
+const initTodosState = {
+  todoList: []
+}
+const todosReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD':
+      return {
+        ...state,
+        todoList: state.todosList.concat([ action.data ])
+      };
+    default:
+      return state;
+  }
+}
+const todos = props => {
+  const [ todoList, dispatch ] = useReducer(todosReducer, initTodosState);
+
+  const renderTodos = () => (
+    todoList.map(todo => { <li key={ todo }> { todo } </li> });
+  );
+
+  return (
+    <input type="text" value={ todoName } onChange={ handleInputChange } />
+    <button type="button" onclick={ handleAddTodo }>Add<button/>
+    <ul>{ renderTodos() }<ul/>
+  );
+}
+```
+## useMemo Hook
+This is good for memoization, i.e. to prevent rerendering items when it's not necessary. We can think of it as the shouldComponentUpdate lifecycle hook for class based components. 
+
+```jsx
+//...
+const parentComponent = props => {
+  return (
+    <div>
+      {useMemo(
+          () => <MyChildComponent items={ someStateItem } />,
+          [ someStateItem ]
+      )}
+    </div>
+  )
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
