@@ -1,0 +1,2 @@
+import scripts.pandas_playground
+import scripts.numpy_playground

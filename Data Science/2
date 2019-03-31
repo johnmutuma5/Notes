@@ -55,7 +55,6 @@
       - [Decomposition of variability](#decomposition-of-variability)
       - [Multiple Regresssion](#multiple-regresssion)
       - [Test for overall significance of the model - F test](#test-for-overall-significance-of-the-model---f-test)
-      - [The Assumptions of the OLS](#the-assumptions-of-the-ols)
 
 
 
@@ -580,7 +579,7 @@ Variability in the dependent variable can be broken down into three after fittin
 
 - `The Sum of Squares Regression` - 
   This is a measure of variability explained by the regression model. It can be expressed as follows;
-
+  
   $$
     SSR = {
       \sum_{i=0}^{n} (\widehat{y_i} - \bar{y})^2
@@ -637,45 +636,6 @@ $$ H_0: \beta_{1} \: = \: \beta_{2} \dots \beta_{k} \: = \: 0  $$
 
 It allows us also to compare models.
 
-### The Assumptions of the OLS
-#### Linearity
-OLS assumes that the model is linear. Each explanatory variable has a coefficient and there's a common constant value. We can determine if a linear model would be suitable by looking at the scatter plot between a dependent and an independent variable and judging if we can observe any visual linear trend. If the observation is not linear, we should not use the data before transforming it appropriately e.g. exponential or logarithmic transformation.
-
-#### No Endogeneity
-This refers to a situation whereby an explanatory variable is correlated with the error term. This is usually a result of omitted variables. When a we have a variable, Z, that is not included as an x variable yet it it is correlated to one of the x variables and the y variable, then that means that the x variable is correlated with the error term as the error term includes all other factors that are not accounted for in the model.
-
-#### Normality and Homoscedasticity
-This makes an assumption that the error term is normally distributed. It also expects that the error term will have a zero mean. Homoscedasticity implies equal variance of the error terms for different observations with the same model. This can be prevented by;
-
-- Looking for the omitted variable bias
-- Looking for outliers
-- The log transform
-
-#### No Autocorrelation
-This is also known as no serial correlation. This autocorrelation is on the error terms. The remedy is to avoid using a linear model when the error terms are autocorrelated. The Durbin Watson statistic is a good measure for autocorrelation.
-
-#### No Multi-collinearity
-We observe multi-collinearity when two or more variables have a high correlation.
-
-### Using Dummy Variables to Deal with Categorical Variables
-Usually we'd imitate the variables with numbers. e.g. for 1 for a 'yes' and 0 for a 'No'.
-
-### Generating and Interpreting a Model in Python
-#### Reading CSV data and Checking out the Data
-We can use the pandas library to load data into a dataframe.
-```py
-import pandas as pd
-import numpy as np
-import matplotlib as plt
-%matplotlib inline # instruct notebook to display matplotlib plots inline
-
-df = pd.read_csv('../path/to/data/file.csv')
-df.head() # look at a few of the top rows of the dataframe
-df.describe() # get statistical summaries for the data e.g. means, std, count etc.
-df['a_column'].hist(bins=50) # explore the column with a histogram. Check for extremvalues
-```
-#### Data Wrangling
-This is the process of cleaning and unifying messy and complex datasets. e.g. dealing with missing data. 
 
 ## Appendix
 #### Frequency Distribution Table example
