@@ -40,6 +40,10 @@
     - [TravisCI yaml File](#travisci-yaml-file)
     - [Running the tests on Travis](#running-the-tests-on-travis)
     - [Hosting the Application with Elastic Beanstalk on AWS](#hosting-the-application-with-elastic-beanstalk-on-aws)
+- [Kubernetes](#kubernetes)
+    - [Kubernetes: Development vs Production Environment](#kubernetes-development-vs-production-environment)
+        - [Setting up Kubernetes on Local Machine](#setting-up-kubernetes-on-local-machine)
+        - [Comparing Docker-compose with Kubernetes](#comparing-docker-compose-with-kubernetes)
 - [appendix](#Appendix)
 
 # Why Use Docker
@@ -626,20 +630,73 @@ EXPOSE 80
 ```
 
 
+## Dockerizing Multiple Services
+As we have seen earlier, we can use docker-compose.yml to spin out multiple containers as services that are launched in the same network.
+
+We have already seen the key composition of a docker-compose file. We will see a few more options here.
+
+### Environment Variables in docker-compose.yml
+We can set environment variables in docker compose in three major ways;
+
+- From the host machine - this is done with the syntax;
+  ```yml
+  environment:
+    - VARIABLE
+  ```
+  This specifies the name for the env variable as VARIABLE. The container will try to look for that name from the containers hosting machine
+
+- From the compose file - syntax as follows;
+  ```yml
+  environment:
+    - VARIABLE=value
+  ```
+- From the env file - compose can specify an env file for the container e.g. .env
+  ```yml
+  env-file:
+    - ../path/to/.env/file 
+  ```
 
 
+The environment key can be a mapping or a list;
+```yml
+enviroment:
+  VARIABLE: value
+  VARIABLE2
+```
 
+These would also work well.
 
+# Kubernetes
+Kubernetes is a system for running many different set of containers over multiple different containers.
 
+It is useful when we need to run many different containers with different images.
 
+## Kubernetes: Development vs Production Environments
+In development mode, we usually make use of `minikube` to set up Kubernetes on the local machine.
 
+In a production environment, there are usually managed services such as Amazon Elastic Container Service for Kubernetes, Google Cloud Kubernetes Engine and we are also not limited to do the set up ourselves.
 
+Two programs become handy namely:
+- `kubectl` - for managing the containers inside the VM node - both locally and in production
+- `minikube` - for managign the VM itself - used in development environment only
 
+### Setting up Kubernetes on Local Machine
+This will involve three major steps:
+- Install kubectl - CLI for interacting with our master - `brew install kubectl`
+- Install a VM driver (virtualbox) - used to make a VM that will be our single node - download and install from virtualbox.org
+- Install minikube - used to run single node on that VM - `brew cast install minikube`
 
+Once all have been installed, we can run `minikube start` to start Kubernetes locally.
 
+Check the status of `minikube` with `minikube status`.
+Check the status of `kubectl` with `kubectl cluster-info`.
 
-
-
+## Comparing Docker-compose with Kubernetes
+| Docker  Compose | Kubernetes  |
+|:----------------|:------------|
+|Each entry can optionally get docker compose to build an image | Requires all images to be built |
+|Each entry represents a container that we want to build | One config file per _object_ we want to create |
+|Each entry defines the networking requirements(ports) | We have to manually set up networking |
 
 
 # Appendix

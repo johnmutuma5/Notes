@@ -1,3 +1,5 @@
+// Run this code in Firefox or set fix the CORS issue when using Chrome
+
 const prepareSvg = () => {
   const svg = d3.select('svg');
   svg.style('background-color', '#FFF0EB');

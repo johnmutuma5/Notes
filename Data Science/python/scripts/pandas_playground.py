@@ -81,7 +81,7 @@ print("\n\nWith Day set as index\n\n", df5)
 
 ### Changing the name of columns
 df6 = df4.rename(columns={"Visitors": "Users"})
-print("\n\nWith Visitors column rename to Users\n\n", df6)
+print("\n\nWith Visitors column renamed to Users\n\n", df6)
 
 ## Concatenating data frames - i.e. UNION
 df7 = pd.DataFrame(
