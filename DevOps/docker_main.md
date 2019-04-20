@@ -44,6 +44,9 @@
     - [Kubernetes: Development vs Production Environment](#kubernetes-development-vs-production-environment)
         - [Setting up Kubernetes on Local Machine](#setting-up-kubernetes-on-local-machine)
         - [Comparing Docker-compose with Kubernetes](#comparing-docker-compose-with-kubernetes)
+    -  [Kubernetes Cluster Object Types](#kubernetes-cluster-object-types)
+    - [Loading Config File into the Kubernetes Cluster](#loading-config-file-into-the-kubernetes-cluster) 
+    - [Updating the Configuration of a Pod](#updating-the-configuration-of-a-pod) 
 - [appendix](#Appendix)
 
 # Why Use Docker
@@ -491,7 +494,7 @@ services:
       - "3000:3000"
     volumes:
       - /app/node_modules
-      - .:/app/node_modules
+      - .:/app
 ```
 
 If we run `docker-compose up` like that, we hit an error, that Dockerfile does not exist. This is because like `docker build`, `build: .` looks for a file named Dockerfile in the directory where `docker-compose.yml` is placed. We need to tweak our build to specify a context and a custom Dockerfile name. As follows;
@@ -594,7 +597,7 @@ before_install:  # things to happen before tests and deployment
   - docker build -t johnmutuma5/docker-react -f Dockerfile.dev .
 
 script:
-  - docker -it run johnmutuma5/docker-react -f Dockerfile.dev npm run test -- --coverage
+  - docker -it run johnmutuma5/docker-react npm run test -- --coverage
 ```
 
 
@@ -653,7 +656,7 @@ We can set environment variables in docker compose in three major ways;
 - From the env file - compose can specify an env file for the container e.g. .env
   ```yml
   env-file:
-    - ../path/to/.env/file 
+    - ../path/to/.env
   ```
 
 
@@ -698,6 +701,101 @@ Check the status of `kubectl` with `kubectl cluster-info`.
 |Each entry represents a container that we want to build | One config file per _object_ we want to create |
 |Each entry defines the networking requirements(ports) | We have to manually set up networking |
 
+## Kubernetes Cluster Object Types
+In a kubernetes cluster, can run different types of objects. These include;
+- Pod
+- Service
+- ReplicaController
+- StatefulSet
+
+What is a Pod?
+The Pod is a grouping of containers with a very related purpose.
+
+When we run `minikube start` we spin out a new virtual machine (Node) on our host machines. The Node is used by kubernetes to run a number of different objects. One of the objects that we can run inside of this node is a Pod.
+
+What is a Service?
+A Service sets up networking options inside a kubernetes cluster.
+
+There are four commonly used sub-types;
+- ClusterIP
+- NodePort
+- LoadBalancer
+- Ingress
+
+The NodePort exposes a container to the outside world. (Only good for development purposes)
+
+A service communicates with a Pod by using the `selector` spec. This specifies a key-value pair to look for in the Pods' labels.
+
+e.g.
+
+```yaml
+# Pod config file
+metadata:
+  labels:
+    component: web
+```
+
+```yaml
+# Service config file
+spec:
+  type: NodePort
+  ports:
+    port: 3050
+    targetPort: 3000
+    nodePort: 31515
+  selector:
+    component: web
+```
+
+In the ports declared above, the port is used by other Pods to connect to the Pod specified by the selector.
+
+
+The nodePort is what the external client e.g. the browser accesses. It should be a random number between 30000 and 32767.
+
+## Loading Config File into the Kubernetes Cluster 
+We use the following command to achieve this;
+
+> kubectl apply -f <config-filename>
+
+This when successful prints a message that the object has been created.
+
+To print the status of all running pods;
+
+> kubectl get pods
+
+To get the status of all running services, you guessed it;
+
+> kubectl get services
+
+How do we access the application running on a kubernetes cluster?
+
+We have been used to `localhost` but for accessing kubernetes cluster applications, we do so via the IP address that kubernetes is running on. To get this for our `minikube`, we use the following command;
+
+> mikube ip
+
+Once you have the IP address of your kubernetes, you can access it and remember to specify the service port;
+
+`192:100:98:100:31515`
+
+## Updating the Configuration of a Pod
+Once a Pod has been initialised by feeding the configuration file into kubectl, we can always make changes to the runnig Pod by feeding a confuguration file with some changes as long as we do not change the name of the Pod.
+
+With this we can update the image that's running inside a container in a Pod. There are certain things that we can't change with this approach; kubectl would throw an error on changing these in the configuration file;
+
+- Port
+- Name
+- Containers 
+
+How do we work around this?
+
+Since running a Pod will limit us in making changes to the items stated above, we can opt for an alternative to running a Pod object in kubernetes. This is the `Deployment` object.
+
+A `Deployment` maintains a set of identical Pods, ensuring that they have the right config and that the right number exists. It is very similar in nature to a Pod. The following is a comparison between a Pod and a Deployment.
+
+- While a Pod runs a single set of containers, a deployment runs a set of identical Pods(one or more)
+- While a Pod is good for one-off development purposes, a deployment  monitors the astate of each Pod updating as necessary
+- While a Pod is rarely used in Production, a deployment is good for both Production and Development
+
 
 # Appendix
 ## Commands
@@ -717,3 +815,9 @@ Check the status of `kubectl` with `kubectl cluster-info`.
 - `docker-compose up [--build, [--renew-anon-volumes]]` - start all containers in a `docker-compose.yml` file in the current dir. If the `--build` option is indicated, docker rebuilds the images; good to get the latest changes to the files, `--renew-anon-volumes` enforces a renewal of the anonymous volumes.
 - `docker-compose down` - stop all the containers in the `docker-compose.yml` file in the current dir
 - `docker-compose ps` - list the details of all the containers in the `docker-compose.yml` in the current dir
+
+## Kubernetess
+- `kubectl apply -f <config-flename>` - apply a configuration file to the cluster
+- `kubectl get pods` - get all pods running in kubernetes
+- `kubectl get services` - get all servicess running in kubernetes
+- `kubectl describe <object-type> <object-name>` - get detailed information about a kubernetes cluster object
