@@ -1,3 +1,5 @@
+These notes are taken from [this](https://www.udemy.com/docker-and-kubernetes-the-complete-guide/) amazing Udemy course by Stephen Grider.
+
 # Table of Contents
 - [Why Use Docker](#why-use-docker)
 - [Using the Docker Client](#using-the-docker-client)
@@ -41,12 +43,21 @@
     - [Running the tests on Travis](#running-the-tests-on-travis)
     - [Hosting the Application with Elastic Beanstalk on AWS](#hosting-the-application-with-elastic-beanstalk-on-aws)
 - [Kubernetes](#kubernetes)
-    - [Kubernetes: Development vs Production Environment](#kubernetes-development-vs-production-environment)
-        - [Setting up Kubernetes on Local Machine](#setting-up-kubernetes-on-local-machine)
-        - [Comparing Docker-compose with Kubernetes](#comparing-docker-compose-with-kubernetes)
-    -  [Kubernetes Cluster Object Types](#kubernetes-cluster-object-types)
-    - [Loading Config File into the Kubernetes Cluster](#loading-config-file-into-the-kubernetes-cluster) 
-    - [Updating the Configuration of a Pod](#updating-the-configuration-of-a-pod) 
+  - [Kubernetes: Development vs Production Environment](#kubernetes-development-vs-production-environment)
+    - [Setting up Kubernetes on Local Machine](#setting-up-kubernetes-on-local-machine)
+    - [Comparing Docker-compose with Kubernetes](#comparing-docker-compose-with-kubernetes)
+  -  [Kubernetes Cluster Object Types](#kubernetes-cluster-object-types)
+  - [Loading Config File into the Kubernetes Cluster](#loading-config-file-into-the-kubernetes-cluster) 
+  - [Updating the Configuration of a Pod](#updating-the-configuration-of-a-pod) 
+  - [Deployment Configuration Files](#deployment-configuration-files) 
+  - [The Need for Services](#the-need-for-services)
+  - [Triggering Deployment Updates](#triggering-deployment-updates)
+    - [Updating an Image in a Kubernetes Cluster with an Imperative Command](#updating-an-image-in-a-kubernetes-cluster-with-an-imperative-command)
+    - [Reconfiguring Docker CLI](#reconfiguring-docker-cli)
+  - [Deploying a Multi-container App with Kubernetes](#deploying-a-multi-container-app-with-kubernetes)
+    - [Cleaning up the Application Folder Structure](#cleaning-up-the-application-folder-structure)
+  - [ClusterIP vs NodePort Service](#clusterip-vs-nodeport-service)
+  - [Need to Volumes with Databases](#need-to-volumes-with-databases)
 - [appendix](#Appendix)
 
 # Why Use Docker
@@ -796,6 +807,135 @@ A `Deployment` maintains a set of identical Pods, ensuring that they have the ri
 - While a Pod is good for one-off development purposes, a deployment  monitors the astate of each Pod updating as necessary
 - While a Pod is rarely used in Production, a deployment is good for both Production and Development
 
+Upon using a deployment, all the restrictions upon updating a Pod's certain properties will be lifted.
+
+## Deployment Configuration Files
+Deployments configuration files contain Pod templates that spell out how the Pod(s) created in the Deployment
+
+An example of a Deployment configuration file can look like this;
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: client
+          image: johnmutuma5/docker-fib-client
+          ports:
+            - containerPort: 3000
+```
+
+In the file above, the template is the structure of every Pod that should be created and maintained by this Deployment. This means that every Pod that is created by this Deployment is going to have a metadata with labels `component: web` and it will also have a single container with a name client and image `johnmutuma5/docker-fib-client` and it'll expose port 3000 to the world.
+
+The replcia specifies the number of Pods that the Deployment is going to make. Remember that all the Pod(s) are going to be identical in nature.
+
+## The Need for Services
+Every single Pod that gets created via a Deployment gets an IP address of its own.
+
+> kubectl get pods -o wide
+
+Running the command above will show an expanded detail of the Pod(s) and we can see the IP address of each running Pod(s). This is an IP address in the Node and not the host machine.
+
+![img: Sevices and Pods](notes-images/services-and-pods.png)
+
+The service directs request to the relevant Pods. In case a Pod's IP address is changed by a redeployment, we don't have to keep changing the IP address because we'd be connecting to the Pods via a Service that would take the responsibility of knowing the addresses of the Pod(s) it refers to with the selector property.
+
+
+## Triggering Deployment Updates
+Triggering a Kubernetes cluster to update when there is a new image on docker hub is not the easiest thing to do.
+
+One approach would be to delete the pod manually causing kubectl master to get into an imbalanced state and hence cause an update to the cluster. This is not a very good appoach. 
+
+The other alternative would be to push new built images to docker hub with a version number appended to the image tag as `johnmutuma5/<image-name>:<version-no>` and then update the Kubernetes Deployment config file with the new image identifier and finally apply it with kubectl. This can also become a tedious approach especially with automated build and deployments.
+
+The more reasonable approach would be to tag the image and push to docker hub and then run an imperative command to update the Deployment.
+
+### Updating an Image in a Kubernetes Cluster with an Imperative Command
+This is going to involve two main steps;
+
+- Build the new image and tag it with a version number
+- Run a command with kubectl to force the Deployment to use a new image 
+
+
+The command to run would be:
+
+> kubectl set image < object-type >/< object-name > < container-name >=< new-image-name >
+
+
+## Reconfiguring Docker CLI
+Kubernetes runs a different copy of docker server and docker client. If you run docker ps on your terminal, you will not see any of the containers running inside Kubernetes. We can configure the host's docker CLI to interact with the copy of docker inside Kubernetes.
+
+Run `minikube docker-env` and read the instructions. Once done, running `docker ps` should list containers running in Kubernetes. NB: This only configures the current terminal window.
+
+It usually uncommon for us to want to mess with the container setup inside Kubernetes via the CLI because we'd want to leave that resposibility to the kubectl master to do the balancing with the instructions that we apply via object configuration files. Why then would we want to connect the Docker server inside Kubernetes to interact via our host's docker CLI? A few reasons would be:
+
+- We can use the same debugging techiniques we have used with Docker CLI in Kubernetes. However, most of the debugging commands such as logs, executing a program such as shell on the container with `docker exec`, are also available via the kubectl CLI. e.g.
+    - `kubectl logs <pod-name>`
+    - `kubectl exec -it <pod-name> <command>`
+- Manually kill containers to test Kubernetes ability to 'self-heal'
+- Delete cached images in the node
+
+
+## Deploying a Multi-container App with Kubernetes
+The following diagram illustrates wheat we're going to attempt to achieve with [this](https://github.com/johnmutuma5/fib-docker) repo that we had set up before.
+
+![Fib Deployment Vis.](notes-images/fib-deployment-vis.png)
+
+It is important that we first start up the application with docker-compose to just be sure that the application is healthy and working.
+
+> docker-compose up --build --V
+
+The applicaiton should be running and doing the fibionacci calculations very well.
+
+### Cleaning up the Application Folder Structure
+In the application as it looks, we're going to remove some of the files that we won't need in the world of Kubernetes. These include the AWS docker run file, and .travis file that we're going to recreate. The docker-compose file can also be removed or left there but we won't need it. The nginx server folder that routed to client or server will also be replaced by the Ingress Service as in the diagram above.
+
+We'll create a new directory called K8s which is going to house our Kubernetes files. This is going to include the following files;
+
+- `client-deployment.yaml` - this is going to configure the deployment for the client
+- `client-cluster-ip-service.yaml` - this is going to configure the ClusterIP service for the client
+
+## ClusterIP vs NodePort Service
+The NodePort Service exposes a Pod/Deployment to the outside world. On the other hand, the ClusterIP exposes the Pod/Deployment to other objects in the cluster.
+
+Unlike in a NodePort Service, we do not specify the nodePort property of the ports in the spec. We however have to specify the `port` that other objects in the cluster can use to communicate with the service and a `targetPort` that specifies the port on which the service is going to communicate with the target.
+
+
+## Need to Volumes with Databases
+Similar to docker volumes, Kubernetes makes use of Persistent Volume Claims i.e. PVC. 
+
+Databases such as Postgres receive requests to store data and the'll write it to a filesystem for persistence. When running in a container, in a scenario whereby the container crushed, we can spin out a new similar container but the data stored in the previous container is permanently lost! This would not be something that we'd want. This is something we can expect especially in a Kubernetes world where the master manages the pods that are running in a cluster.
+
+With PVCs, we're able to get a prevention for such kind of a situation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Appendix
 ## Commands
@@ -816,8 +956,11 @@ A `Deployment` maintains a set of identical Pods, ensuring that they have the ri
 - `docker-compose down` - stop all the containers in the `docker-compose.yml` file in the current dir
 - `docker-compose ps` - list the details of all the containers in the `docker-compose.yml` in the current dir
 
-## Kubernetess
-- `kubectl apply -f <config-flename>` - apply a configuration file to the cluster
+## Kubernetes
+- `minikube ip` - get the IP address of the running cluster
+- `kubectl apply -f <config-flename>` - apply a configuration file to the cluster. By passing a directory in config-filename, kubectl is going to look for every configuration file in there and attempt to apply it
 - `kubectl get pods` - get all pods running in kubernetes
-- `kubectl get services` - get all servicess running in kubernetes
+- `kubectl get deployments` - get all deployments running in kubernetes
+- `kubectl get services` - get all services running in kubernetes
 - `kubectl describe <object-type> <object-name>` - get detailed information about a kubernetes cluster object
+- `kubectl delete -f <config-filepath>` - remove a Pod created by the config file. We can also use kubectl delete < object-type > < object-name >
